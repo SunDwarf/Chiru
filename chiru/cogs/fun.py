@@ -1,7 +1,10 @@
 """
 Fun commands.
 """
+import functools
+
 import discord
+import google
 from discord.ext import commands
 
 from bot import Chiru
@@ -64,6 +67,39 @@ Mutual servers: {mut}```"""
             if serv.get_member(member.id):
                 count += 1
         return count
+
+    def _search_google(self, fn, query):
+        """
+        Callback for searching google.
+
+        Used inside an executor.
+        """
+        search = fn(query)
+        # Get the first item off of the search.
+        result = next(search)
+        return result
+
+    @commands.group(pass_context=True, invoke_without_command=True)
+    async def search(self, ctx: Context, *, searchstr: str):
+        """
+        Searches the web for something.
+
+        Use `search images` for google images search.
+        """
+        result = await self.bot.loop.run_in_executor(
+            None, functools.partial(self._search_google, google.search, searchstr)
+        )
+        await self.bot.say(result)
+
+    @search.command(pass_context=True)
+    async def images(self, ctx: Context, *, searchstr: str):
+        """
+        Search google images.
+        """
+        result = await self.bot.loop.run_in_executor(
+            None, functools.partial(self._search_google, google.search_images, searchstr)
+        )
+        await self.bot.say(result)
 
 
 def setup(bot: Chiru):
