@@ -22,8 +22,8 @@ redirect_logging()
 StreamHandler(sys.stderr).push_application()
 
 initial_extensions = [
-    'cogs.fun',
-    'cogs.owner'
+    'chiru.cogs.fun',
+    'chiru.cogs.owner'
 ]
 logging.root.setLevel(logging.INFO)
 
