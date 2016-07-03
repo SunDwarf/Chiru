@@ -6,6 +6,8 @@ import sys
 import discord
 import logbook
 import logging
+
+import traceback
 from discord.ext.commands import Bot, CommandError, CommandNotFound
 from discord.ext.commands.view import StringView
 
@@ -68,7 +70,11 @@ class Chiru(Bot):
             return
 
         # Process commands
-        await self.process_commands(message)
+        try:
+            await self.process_commands(message)
+        except Exception as e:
+            lines = traceback.format_exception(type(e), e.__cause__, e.__cause__.__traceback__)
+            await self.send_message(message.channel, "```py\n{}\n```".format(''.join(lines)))
 
     async def process_commands(self, message):
         """
@@ -106,12 +112,8 @@ class Chiru(Bot):
         if invoker in self.commands:
             command = self.commands[invoker]
             self.dispatch('command', command, ctx)
-            try:
-                await command.invoke(ctx)
-            except CommandError as e:
-                ctx.command.dispatch_error(e, ctx)
-            else:
-                self.dispatch('command_completion', command, ctx)
+            await command.invoke(ctx)
+            self.dispatch('command_completion', command, ctx)
         elif invoker:
             exc = CommandNotFound('Command "{}" is not found'.format(invoker))
             self.dispatch('command_error', exc, ctx)

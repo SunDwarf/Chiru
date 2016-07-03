@@ -134,5 +134,3 @@ ENV/
 
 # Rope project settings
 .ropeproject
-
-cogs/owner.py
