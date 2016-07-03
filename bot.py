@@ -8,6 +8,8 @@ import logbook
 import logging
 
 import traceback
+
+from discord.ext import commands
 from discord.ext.commands import Bot, CommandError, CommandNotFound
 from discord.ext.commands.view import StringView
 
@@ -73,8 +75,16 @@ class Chiru(Bot):
         try:
             await self.process_commands(message)
         except Exception as e:
-            lines = traceback.format_exception(type(e), e.__cause__, e.__cause__.__traceback__)
-            await self.send_message(message.channel, "```py\n{}\n```".format(''.join(lines)))
+            # Check the type of the error.
+            if isinstance(e, commands.errors.BadArgument):
+                await self.send_message(message.channel, ":x: Bad argument: {}".format(' '.join(e.args)))
+                return
+            else:
+                if isinstance(e, commands.errors.CommandInvokeError):
+                    lines = traceback.format_exception(type(e), e.__cause__, e.__cause__.__traceback__)
+                else:
+                    lines = traceback.format_exception(type(e), e, e.__traceback__)
+                await self.send_message(message.channel, "```py\n{}\n```".format(''.join(lines)))
 
     async def process_commands(self, message):
         """

@@ -111,5 +111,6 @@ class Owner:
 
         await self.bot.say("Reloaded all.")
 
+
 def setup(bot: Chiru):
     bot.add_cog(Owner(bot))
