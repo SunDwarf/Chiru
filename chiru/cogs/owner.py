@@ -3,10 +3,12 @@ Owner-only commands.
 """
 
 import discord
+import traceback
 from discord.ext import commands
 from discord.ext.commands import Context
 
 from bot import Chiru
+from chiru import util
 from chiru.checks import is_owner
 
 
@@ -59,6 +61,55 @@ class Owner:
         await self.bot.edit_profile(username=name)
         await self.bot.say(":heavy_check_mark: Changed name to {}.".format(name))
 
+    @commands.command(pass_context=True)
+    @commands.check(is_owner)
+    async def avatar(self, ctx, *, url: str):
+        """
+        Change the bot's avatar.
+        """
+        avatar = await util.get_file(url)
+        await self.bot.edit_profile(avatar=avatar)
+        await self.bot.say(":heavy_check_mark: Changed avatar.")
+
+    @commands.command(pass_context=True)
+    @commands.check(is_owner)
+    async def load(self, ctx, *, extension: str):
+        """
+        Load an extension.
+        """
+        try:
+            self.bot.load_extension("chiru.cogs.{}".format(extension))
+        except Exception as e:
+            traceback.print_exc()
+            await self.bot.say("Could not load `{}` -> `{}`".format(extension, e))
+        else:
+            await self.bot.say("Loaded cog `chiru.cogs.{}`.".format(extension))
+
+    @commands.command(pass_context=True)
+    @commands.check(is_owner)
+    async def unload(self, ctx, *, extension: str):
+        """
+        Unload an extension.
+        """
+        try:
+            self.bot.unload_extension("chiru.cogs.{}".format(extension))
+        except Exception as e:
+            traceback.print_exc()
+            await self.bot.say("Could not unload `{}` -> `{}`".format(extension, e))
+        else:
+            await self.bot.say("Unloaded `{}`.".format(extension))
+
+    @commands.command(pass_context=True)
+    @commands.check(is_owner)
+    async def reloadall(self, ctx):
+        """
+        Reload all extensions.
+        """
+        for extension in self.bot.extensions:
+            self.bot.unload_extension(extension)
+            self.bot.load_extension(extension)
+
+        await self.bot.say("Reloaded all.")
 
 def setup(bot: Chiru):
     bot.add_cog(Owner(bot))
