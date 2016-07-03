@@ -76,7 +76,7 @@ class Chiru(Bot):
             await self.process_commands(message)
         except Exception as e:
             # Check the type of the error.
-            if isinstance(e, commands.errors.BadArgument):
+            if isinstance(e, (commands.errors.BadArgument, commands.errors.MissingRequiredArgument)):
                 await self.send_message(message.channel, ":x: Bad argument: {}".format(' '.join(e.args)))
                 return
             else:
