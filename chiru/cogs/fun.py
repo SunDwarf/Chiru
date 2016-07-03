@@ -101,6 +101,15 @@ Mutual servers: {mut}```"""
         )
         await self.bot.say(result)
 
+    @commands.command(pass_context=True)
+    async def info(self, ctx: Context):
+        """
+        Show information about the bot.
+        """
+        await self.bot.say("I'm {} - yet another bot.\n"
+                            "I was written by Fuyu, the best programmer in the world.\n"
+                            "Join my test server: https://discord.gg/Rh6jAXa".format(self.bot.user.name))
+
 
 def setup(bot: Chiru):
     bot.add_cog(Fun(bot))
