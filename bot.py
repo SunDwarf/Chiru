@@ -55,6 +55,9 @@ class Chiru(Bot):
             else:
                 self.logger.info("Loaded extension {}.".format(cog))
 
+    def __del__(self):
+        self.loop.set_exception_handler(lambda *args, **kwargs: None)
+
     async def on_message(self, message):
         # Print logging output.
 
