@@ -1,0 +1,11 @@
+## Example config file.
+
+# Bot's token.
+oauth2_token: ""
+
+# Redis data.
+redis:
+  host: 127.0.0.1
+  port: 6379
+  db: 0
+  password: null

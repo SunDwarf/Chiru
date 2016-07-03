@@ -1,11 +1,15 @@
 """
 Bot file.
 """
+import os
+import shutil
 import sys
 
+import aioredis as aioredis
 import discord
 import logbook
 import logging
+import yaml
 
 import traceback
 
@@ -44,8 +48,46 @@ class Chiru(Bot):
         # We still have to do this
         logging.root.setLevel(logging.INFO)
 
+        try:
+            cfg = sys.argv[1]
+        except IndexError:
+            cfg = "config.yml"
+
+        if not os.path.exists(cfg):
+            shutil.copy("config.example.yml", cfg)
+
+        with open(cfg) as f:
+            self.config = yaml.load(f)
+
+        self._redis = None
+
+    async def _connect_redis(self):
+        """
+        Connect to redis.
+        """
+        host = self.config.get("redis")["host"]
+        port = self.config.get("redis")["port"]
+        password = self.config.get("redis", {}).get("password")
+        db = self.config.get("redis", {}).get("db", 0)
+        self.logger.info("Connecting to redis://{}:{}/{}...".format(host, port, db))
+        redis_pool = await aioredis.create_pool(
+            (host, port),
+            db=db, password=password
+        )
+        self._redis = redis_pool
+        self.logger.info("Connected to redis.")
+
+        return self._redis
+
+    async def get_redis(self):
+        if self._redis is None:
+            await self._connect_redis()
+
+        return self._redis
+
     async def on_ready(self):
         self.logger.info("Loaded Chiru, logged in as `{}`.".format(self.user.name))
+        await self.get_redis()
         for cog in initial_extensions:
             try:
                 self.load_extension(cog)
@@ -131,8 +173,10 @@ class Chiru(Bot):
             exc = CommandNotFound('Command "{}" is not found'.format(invoker))
             self.dispatch('command_error', exc, ctx)
 
+    def main(self):
+        self.run(self.config["oauth2_token"])
+
 
 if __name__ == "__main__":
     client = Chiru(command_prefix=["domo arigato ", "chiru "], description="AAAA")
-
-    client.run(sys.argv[1])
+    client.main()

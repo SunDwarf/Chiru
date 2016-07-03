@@ -136,3 +136,4 @@ ENV/
 .ropeproject
 
 chiru/cogs/repl.py
+config.yml
