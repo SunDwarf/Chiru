@@ -32,7 +32,7 @@ class Fun(object):
     @commands.command(pass_context=True)
     async def whois(self, ctx: Context, *, member: discord.Member):
         """
-        Show information about a user.
+        Show detailed information about a user.
         """
         fmt = """WHOIS for user {m}:
 
