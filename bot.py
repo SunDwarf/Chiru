@@ -130,6 +130,6 @@ class Chiru(Bot):
 
 
 if __name__ == "__main__":
-    client = Chiru(command_prefix="domo arigato ", description="AAAA")
+    client = Chiru(command_prefix=["domo arigato ", "chiru "], description="AAAA")
 
     client.run(sys.argv[1])

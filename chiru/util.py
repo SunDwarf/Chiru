@@ -20,6 +20,6 @@ def safe_roles(roles: list):
         if role.name == "@everyone":
             names.append("@​everyone")  # There is an invisible space here, u200b.
         else:
-            names.append(role)
+            names.append(role.name)
 
     return names
