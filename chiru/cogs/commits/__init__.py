@@ -127,6 +127,26 @@ class Commits(object):
                                                         "and must have the "
                                                         "secret of `{}`.".format(addr, r))
 
+    @link.command(pass_context=True)
+    async def remove(self, ctx: Context, *, repo: str):
+        """
+        Remove a repository link.
+        """
+        async with (await self.bot.get_redis()).get() as conn:
+            assert isinstance(conn, aioredis.Redis)
+            removed = await conn.srem("commit_{}".format(repo), ctx.channel.id.encode())
+            if not removed:
+                await self.bot.say(":x: This channel was not linked to that repo.")
+                return
+            # Otherwise, remove it from `commit_channelid` too.
+            await conn.srem("commit_{}".format(ctx.channel.id), repo.encode())
+            # Check if that repo is linked anywhere
+            members = await conn.smembers("commit_{}".format(repo))
+            if not members or not len(members):
+                await conn.delete("commit_{}_secret".format(repo))
+
+            await self.bot.say(":heavy_check_mark: Unlinked repo `{}` from `{}`.".format(repo, ctx.channel.name))
+
 
 def setup(bot: Chiru):
     cog = Commits(bot)
@@ -135,4 +155,4 @@ def setup(bot: Chiru):
     # Start Kyoukai.
     logger.info("Loading Kyoukai web server for commits.")
     kyk.before_request(cog._kyk_before_request)
-    bot.loop.create_task(kyk.start())
+    bot.loop.create_task(kyk.start(port=5555))
