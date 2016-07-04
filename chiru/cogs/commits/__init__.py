@@ -5,8 +5,10 @@ import aiohttp
 import aioredis
 import random
 import string
+from kyokai import Request
 
 from discord.ext import commands
+from kyokai.context import HTTPRequestContext
 from logbook import Logger
 
 from bot import Chiru
@@ -26,6 +28,11 @@ class Commits(object):
         Load the Kyoukai built-in web server.
         """
         self.bot = bot
+
+    async def _kyk_before_request(self, r: HTTPRequestContext):
+        assert isinstance(r.request, Request)
+        r.request.extra["bot"] = self.bot
+        return r.request
 
     def __unload(self):
         """
@@ -107,8 +114,10 @@ class Commits(object):
 
 
 def setup(bot: Chiru):
-    bot.add_cog(Commits(bot))
+    cog = Commits(bot)
+    bot.add_cog(cog)
 
     # Start Kyoukai.
     logger.info("Loading Kyoukai web server for commits.")
+    kyk.before_request(cog._kyk_before_request)
     bot.loop.create_task(kyk.start())
