@@ -30,7 +30,8 @@ StreamHandler(sys.stderr).push_application()
 initial_extensions = [
     'chiru.cogs.fun',
     'chiru.cogs.owner',
-    'chiru.cogs.notifications'
+    'chiru.cogs.notifications',
+    'chiru.cogs.commits'
 ]
 logging.root.setLevel(logging.INFO)
 
@@ -131,9 +132,10 @@ class Chiru(Bot):
         if message.server is not None:
             self.logger.info(" On server: {} ({})".format(message.server.name, message.server.id))
         else:
-            # No DMs
-            await self.send_message(message.channel, "I don't accept private messages.")
-            return
+            if not message.author.bot:
+                # No DMs
+                await self.send_message(message.channel, "I don't accept private messages.")
+                return
 
         # Process commands
         try:
