@@ -39,6 +39,18 @@ class Notifications(object):
         if (await self.bot.get_config(member.server, "notifications")) == "on":
             await self.bot.send_message(member.server.default_channel, "**{}** has joined!".format(member.name))
 
+    async def on_member_ban(self, member: discord.Member):
+        if (await self.bot.get_config(member.server, "notifications")) == "on":
+            await self.bot.send_message(member.server.default_channel, "**{}** got :hammer:".format(member.name))
+
+    async def on_member_unban(self, server: discord.Server, user: discord.User):
+        if (await self.bot.get_config(server, "notifications")) == "on":
+            await self.bot.send_message(server.default_channel, "**{}** got unbanned.".format(user.name))
+
+    async def on_member_remove(self, member: discord.Member):
+        if (await self.bot.get_config(member.server, "notifications")) == "on":
+            await self.bot.send_message(member.server.default_channel, "**{}** left".format(member.name))
+
 
 def setup(bot: Chiru):
     bot.add_cog(Notifications(bot))
