@@ -29,7 +29,8 @@ StreamHandler(sys.stderr).push_application()
 
 initial_extensions = [
     'chiru.cogs.fun',
-    'chiru.cogs.owner'
+    'chiru.cogs.owner',
+    'chiru.cogs.notifications'
 ]
 logging.root.setLevel(logging.INFO)
 
@@ -92,7 +93,10 @@ class Chiru(Bot):
         async with (await self.get_redis()).get() as conn:
             assert isinstance(conn, aioredis.Redis)
             built = "cfg:{}:{}".format(server, key)
-            return await conn.get(built)
+            x = await conn.get(built)
+            if isinstance(x, bytes):
+                return x.decode()
+            return x
 
     async def set_config(self, server: discord.Server, key: str, value, **kwargs):
         async with (await self.get_redis()).get() as conn:
