@@ -24,7 +24,7 @@ async def ping(bot: Chiru, r: Request):
     PING event.
     """
     repo = r.form["repository"]["full_name"]
-    formatted = "**{}**: Recieved *PING*.\n***Your webhooks are set up correctly.***".format(repo)
+    formatted = "**{}:** Recieved *PING*.\n***Your webhooks are set up correctly.***".format(repo)
     channels = await load_channels(bot, repo)
     for channel in channels:
         if not channel:

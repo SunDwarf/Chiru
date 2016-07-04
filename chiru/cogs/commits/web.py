@@ -1,6 +1,9 @@
 """
 Kyoukai web server.
 """
+import hmac
+
+import hashlib
 from kyokai import Request
 from kyokai.context import HTTPRequestContext
 from kyokai.app import Kyōkai
@@ -29,17 +32,39 @@ async def handle_event(bot: Chiru, request: Request):
     """
     Handles a webhook event.
     """
-    if not 'X-GitHub-Event' in request.headers:
+    if 'X-GitHub-Event' not in request.headers:
         # Don't respond to non-github requests.
         logger.warn("Recieved non-github event...")
         return "", 400
 
     # TODO: Check secret.
+    hsh = request.headers.get("X-Hub-Signature")
+    if not hsh:
+        logger.critical("No shared secret is defined! Ignoring request.")
+        return
+
+    # Check if the repo even exists to handle.
+
+    repo = request.form["repository"]["full_name"]
+    secret = await bot.get_key("commit_{}_secret".format(repo))
+    if not secret:
+        logger.warn("Asked to handle something that does not exist - ignoring.")
+        return "", 404
+
+    meth, digest = hsh.split("=", 1)
+
+    hm = hmac.new(secret.encode(), digestmod=meth)
+    hm.update(request.body.encode())
+    valid = hmac.compare_digest(hm.hexdigest(), digest)
+
+    if not valid:
+        logger.critical("Bad HMAC passed in! Ignoring request.")
+        return "", 400
 
     event = request.headers['X-GitHub-Event']
     # Delegate it.
     handler = handlers.get(event)
-    if not handlers:
+    if not handler:
         logger.info("Recieved unhandled event {}.".format(event))
         return "Unhandled event", 200
 

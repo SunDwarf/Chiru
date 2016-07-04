@@ -99,6 +99,14 @@ class Chiru(Bot):
                 return x.decode()
             return x
 
+    async def get_key(self, key: str):
+        async with (await self.get_redis()).get() as conn:
+            assert isinstance(conn, aioredis.Redis)
+            x = await conn.get(key)
+            if isinstance(x, bytes):
+                return x.decode()
+            return x
+
     async def set_config(self, server: discord.Server, key: str, value, **kwargs):
         async with (await self.get_redis()).get() as conn:
             assert isinstance(conn, aioredis.Redis)
