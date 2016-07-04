@@ -109,7 +109,8 @@ class Commits(object):
                 ip = await self._get_ip()
                 port = self.bot.config.get("commitbot_port") or kyk.component.port
                 await self.bot.send_message(ctx.author, "To complete commit linking, add a new webhook to your repo.\n"
-                                                        "The webhook should point to `http://{}:{}`, and must have the "
+                                                        "The webhook should point to `http://{}:{}/webhook`, "
+                                                        "and must have the "
                                                         "secret of `{}`.".format(ip, port, r))
 
 
