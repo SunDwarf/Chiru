@@ -64,18 +64,25 @@ async def issues(bot: Chiru, r: Request):
     repo = r.form["repository"]["full_name"]
     action = r.form["action"]
     if action == "opened":
-        fmt = "**{}:** **{}** opened issue **#{}**: **{}**\n(<{}>)" \
-            .format(repo, r.form["issue"]["user"]["login"], r.form["issue"]["number"], r.form["issue"]["title"],
-                    r.form["issue"]["html_url"])
+        fmt = "**{repo}:** **{issue[user][login]}** opened issue **#{issue[number]}**: " \
+              "**{issue[title]}**\n(<{issue[html_url]}>)" \
+            .format(repo=repo, issue=r.form["issue"])
+
     elif action == "created":  # what
-        fmt = "**{}:** **{}** commented on issue **#{} {}**\n(<{}>)" \
-                .format(repo, r.form["sender"]["login"], r.form["issue"]["number"], r.form["issue"]["title"],
-                        r.form["comment"]["html_url"])
+        fmt = "**{repo}:** **{sender[login]}** " \
+              "commented on issue **#{issue[number]} {issue[title]}**\n(<{issue[html_url]}>)" \
+                .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
 
     elif action == "closed":
-        fmt = "**{}:** **{}** closed issue **#{} {}**\n(<{}>)" \
-                .format(repo, r.form["sender"]["login"], r.form["issue"]["number"], r.form["issue"]["title"],
-                        r.form["issue"]["html_url"])
+        fmt = "**{repo}:** **{sender[login]}** closed issue **#{issue[number]} {issue[title]}**" \
+              "\n(<{issue[html_url]}>)" \
+                .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
+
+    elif action == "labeled":
+        fmt = "**{repo}:** **{sender[login]}** added labels `{labels}` to issue " \
+              "**#{issue[number]} {issue[title]}**" \
+            .format(repo=repo, issue=r.form["issue"],
+                    labels=' '.join("[" + l["name"] + "]" for l in r.form["issue"]["labels"]), sender=r.form["sender"])
 
     for channel in await load_channels(bot, repo):
         if not channel:
