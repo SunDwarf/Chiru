@@ -1,9 +1,11 @@
 """
 Commits main file.
 """
+from discord.ext import commands
 from logbook import Logger
 
 from bot import Chiru
+from override import Context
 from .web import kyk
 
 logger = Logger("Chiru")
@@ -26,6 +28,12 @@ class Commits(object):
         """
         logger.info("Closing Kyoukai server.")
         kyk.component.server.close()
+
+    @commands.group(pass_context=True, invoke_without_command=True)
+    async def link(self, ctx: Context):
+        """
+        Link the Commits of a repository to a specific repo.
+        """
 
 
 def setup(bot: Chiru):
