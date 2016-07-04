@@ -106,12 +106,26 @@ class Commits(object):
                 r = ''.join(
                     random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(16))
                 await conn.set("commit_{}_secret".format(repo), r)
-                ip = await self._get_ip()
-                port = self.bot.config.get("commitbot_port") or kyk.component.port
+
+                # Format the webhook url.
+                if self.bot.config.get("commitbot"):
+                    cc = self.bot.config["commitbot"]
+                    _addr = cc.get("hookaddr")
+                    if _addr:
+                        addr = _addr
+                    else:
+                        addr = "http://{}{}/webhook".format(
+                            cc.get("host"), ':' + cc.get("port") if cc.get("port") else ''
+                        )
+                else:
+                    ip = await self._get_ip()
+                    port = kyk.component.port
+                    addr = "http://{}:{}/webhook".format(ip, port)
+
                 await self.bot.send_message(ctx.author, "To complete commit linking, add a new webhook to your repo.\n"
-                                                        "The webhook should point to `http://{}:{}/webhook`, "
+                                                        "The webhook should point to `{}`, "
                                                         "and must have the "
-                                                        "secret of `{}`.".format(ip, port, r))
+                                                        "secret of `{}`.".format(addr, r))
 
 
 def setup(bot: Chiru):
