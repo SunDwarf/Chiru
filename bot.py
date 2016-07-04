@@ -79,11 +79,26 @@ class Chiru(Bot):
 
         return self._redis
 
-    async def get_redis(self):
+    async def get_redis(self) -> aioredis.RedisPool:
         if self._redis is None:
             await self._connect_redis()
 
         return self._redis
+
+    async def get_config(self, server: discord.Server, key: str):
+        """
+        Get a server config key.
+        """
+        async with (await self.get_redis()).get() as conn:
+            assert isinstance(conn, aioredis.Redis)
+            built = "cfg:{}:{}".format(server, key)
+            return await conn.get(built)
+
+    async def set_config(self, server: discord.Server, key: str, value, **kwargs):
+        async with (await self.get_redis()).get() as conn:
+            assert isinstance(conn, aioredis.Redis)
+            built = "cfg:{}:{}".format(server, key)
+            return await conn.set(built, server, **kwargs)
 
     async def on_ready(self):
         self.logger.info("Loaded Chiru, logged in as `{}`.".format(self.user.name))
