@@ -84,6 +84,14 @@ async def issues(bot: Chiru, r: Request):
             .format(repo=repo, issue=r.form["issue"],
                     labels=' '.join("[" + l["name"] + "]" for l in r.form["issue"]["labels"]), sender=r.form["sender"])
 
+    elif action == "reopened":
+        fmt = "**{repo}:** **{sender[login]}** re-opened issue " \
+              "**#{issue[number]} {issue[title]}**\n(<{issue[html_url]}>)" \
+                .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
+
+    else:
+        fmt = "**{repo}:** Unknown issue event recieved: {event}".format(repo=repo, event=action)
+
     for channel in await load_channels(bot, repo):
         if not channel:
             continue
