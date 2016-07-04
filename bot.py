@@ -98,7 +98,7 @@ class Chiru(Bot):
         async with (await self.get_redis()).get() as conn:
             assert isinstance(conn, aioredis.Redis)
             built = "cfg:{}:{}".format(server, key)
-            return await conn.set(built, server, **kwargs)
+            return await conn.set(built, value, **kwargs)
 
     async def on_ready(self):
         self.logger.info("Loaded Chiru, logged in as `{}`.".format(self.user.name))
