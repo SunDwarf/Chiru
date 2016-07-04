@@ -37,3 +37,9 @@ class Context(commands.Context):
     @property
     def author(self) -> discord.Member:
         return self._message.author
+
+    async def get_config(self, key):
+        return await self.bot.get_config(self.server, key)
+
+    async def set_config(self, key, value):
+        return await self.bot.set_config(self.server, key, value)
