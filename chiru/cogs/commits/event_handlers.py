@@ -57,7 +57,34 @@ async def push(bot: Chiru, r: Request):
         await bot.send_message(channel, header)
 
 
+async def issues(bot: Chiru, r: Request):
+    """
+    Issues.
+    """
+    repo = r.form["repository"]["full_name"]
+    action = r.form["action"]
+    if action == "opened":
+        fmt = "**{}:** **{}** opened issue **#{}**: **{}**\n(<{}>)" \
+            .format(repo, r.form["issue"]["user"]["login"], r.form["issue"]["number"], r.form["issue"]["title"],
+                    r.form["issue"]["html_url"])
+    elif action == "created":  # what
+        fmt = "**{}:** **{}** commented on issue **#{} {}**\n(<{}>)" \
+                .format(repo, r.form["sender"]["login"], r.form["issue"]["number"], r.form["issue"]["title"],
+                        r.form["comment"]["html_url"])
+
+    elif action == "closed":
+        fmt = "**{}:** **{}** closed issue **#{} {}**\n(<{}>)" \
+                .format(repo, r.form["sender"]["login"], r.form["issue"]["number"], r.form["issue"]["title"],
+                        r.form["issue"]["html_url"])
+
+    for channel in await load_channels(bot, repo):
+        if not channel:
+            continue
+        await bot.send_message(channel, fmt)
+
 handlers = {
     "ping": ping,
-    "push": push
+    "push": push,
+    "issues": issues,
+    "issue_comment": issues,
 }
