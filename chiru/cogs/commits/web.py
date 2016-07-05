@@ -68,7 +68,8 @@ async def handle_event(bot: Chiru, request: Request):
         logger.info("Recieved unhandled event {}.".format(event))
         return "Unhandled event", 200
 
-    return await handler(bot, request)
+    await handler(bot, request)
+    return "", 204
 
 
 @kyk.route("/webhook", methods=["GET", "POST"])
