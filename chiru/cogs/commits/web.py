@@ -59,7 +59,7 @@ async def handle_event(bot: Chiru, request: Request):
 
     if not valid:
         logger.critical("Bad HMAC passed in! Ignoring request.")
-        return "", 400
+        return "", 401
 
     event = request.headers['X-GitHub-Event']
     # Delegate it.

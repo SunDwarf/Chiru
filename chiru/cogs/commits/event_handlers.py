@@ -97,9 +97,25 @@ async def issues(bot: Chiru, r: Request):
             continue
         await bot.send_message(channel, fmt)
 
+async def star(bot: Chiru, r: Request):
+    """
+    Star handler.
+    """
+    repo = r.form["repository"]["full_name"]
+    sender = r.form["sender"]
+
+    fmt = "**{repo}:** **{sender[login]}** starred this repo!".format(repo=repo, sender=sender)
+
+    for channel in await load_channels(bot, repo):
+        if not channel:
+            continue
+
+        await bot.send_message(channel, fmt)
+
 handlers = {
     "ping": ping,
     "push": push,
     "issues": issues,
     "issue_comment": issues,
+    "watch": star,
 }
