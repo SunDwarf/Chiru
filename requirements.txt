@@ -2,3 +2,4 @@ aioredis
 logbook
 discord.py[voice]
 kyokai>=1.3.4
+google
