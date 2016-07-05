@@ -12,7 +12,7 @@ try and do everything.
 ## Setup
 
 Chiru has a slightly complex set up due to the database backend used.  
-***Unless you have a C + C++ compiler set up for Python development on Windows, do not try and run on Windows.**
+***Unless you have a C + C++ compiler set up for Python development on Windows, do not try and run on Windows.***
 
 1. Install requirements.
 
