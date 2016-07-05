@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 
 from bot import Chiru
+from chiru import checks
 from override import Context
 
 
@@ -26,6 +27,7 @@ class Notifications(object):
         await self.bot.say("Your server notifications status is **{}**.".format(get))
 
     @notifications.command(pass_context=True)
+    @commands.check(checks.has_manage_server)
     async def on(self, ctx: Context):
         """
         Turn notifications on.
@@ -34,6 +36,7 @@ class Notifications(object):
         await self.bot.say("Notifications turned on.")
 
     @notifications.command(pass_context=True)
+    @commands.check(checks.has_manage_server)
     async def off(self, ctx: Context):
         """
         Turn notifications off.
