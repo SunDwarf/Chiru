@@ -36,6 +36,13 @@ initial_extensions = [
 logging.root.setLevel(logging.INFO)
 
 
+def _get_command_prefix(bot: 'Chiru', message: discord.Message):
+    if bot.config.get("dev"):
+        return "domo arigato "
+    else:
+        return "chiru "
+
+
 class Chiru(Bot):
     """
     Bot class.
@@ -115,6 +122,8 @@ class Chiru(Bot):
 
     async def on_ready(self):
         self.logger.info("Loaded Chiru, logged in as `{}`.".format(self.user.name))
+        id = (await self.application_info()).id
+        self.logger.info("Invite link: {}".format(discord.utils.oauth_url(id)))
         await self.get_redis()
         for cog in initial_extensions:
             try:
@@ -207,5 +216,5 @@ class Chiru(Bot):
 
 
 if __name__ == "__main__":
-    client = Chiru(command_prefix=["domo arigato ", "chiru "], description="AAAA")
+    client = Chiru(command_prefix=_get_command_prefix, description="AAAA")
     client.main()
