@@ -112,10 +112,29 @@ async def star(bot: Chiru, r: Request):
 
         await bot.send_message(channel, fmt)
 
+async def commit_comment(bot: Chiru, r: Request):
+    """
+    Handles comments on commits.
+    """
+    repo = r.form["repository"]["full_name"]
+    sender = r.form["sender"]
+    comment = r.form["comment"]
+
+    fmt = "**{repo}:** **{sender[login]}** commented on commit `{commit}`\n<{comment[html_url]}>".format(
+        repo=repo, sender=sender, commit=comment["commit_id"][0:7], comment=comment
+    )
+
+    for channel in await load_channels(bot, repo):
+        if not channel:
+            continue
+
+        await bot.send_message(channel, fmt)
+
 handlers = {
     "ping": ping,
     "push": push,
     "issues": issues,
     "issue_comment": issues,
     "watch": star,
+    "commit_comment": commit_comment,
 }
