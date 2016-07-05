@@ -12,6 +12,7 @@ from kyokai.context import HTTPRequestContext
 from logbook import Logger
 
 from bot import Chiru
+from chiru import checks
 from override import Context
 from .web import kyk
 
@@ -77,9 +78,12 @@ class Commits(object):
                 return data["origin"]
 
     @link.command(pass_context=True)
+    @commands.check(checks.has_manage_channels)
     async def add(self, ctx: Context, *, repo: str):
         """
         Add a repository link to the channel.
+
+        You must have `Manage Channels` to use this command.
 
         This link must be in the format of `Username/Repository`.
         """
@@ -128,9 +132,12 @@ class Commits(object):
                                                         "secret of `{}`.".format(addr, r))
 
     @link.command(pass_context=True)
+    @commands.check(checks.has_manage_channels)
     async def remove(self, ctx: Context, *, repo: str):
         """
         Remove a repository link.
+
+        You must have `Manage Channels` to use this command.
         """
         async with (await self.bot.get_redis()).get() as conn:
             assert isinstance(conn, aioredis.Redis)
