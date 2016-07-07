@@ -31,7 +31,8 @@ initial_extensions = [
     'chiru.cogs.fun',
     'chiru.cogs.owner',
     'chiru.cogs.notifications',
-    'chiru.cogs.commits'
+    'chiru.cogs.commits',
+    'chiru.cogs.shell',
 ]
 logging.root.setLevel(logging.INFO)
 
