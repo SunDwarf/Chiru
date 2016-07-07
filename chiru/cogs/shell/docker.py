@@ -80,7 +80,7 @@ class DockerInterface:
         """
         vol_name = self.hashed_name + ".img"
         fp = os.path.join("images", vol_name)
-        vp = os.path.join("volumes", self.hashed_name)
+        vp = os.path.join(os.path.abspath("./volumes"), self.hashed_name)
         if not os.path.exists(fp):
             # Make the new loopback image.
             self.logger.info("Creating new loop device for name {}.".format(self.name))
@@ -114,9 +114,7 @@ class DockerInterface:
                 # Return None.
                 return
 
-        vol_path = os.path.abspath("./volumes/{}".format(vol_name))
-
         # Create the new container, using the recently mounted volume.
-        await self.open_container("--read-only=true", "-v", "{}:/docker ".format(vol_path))
+        await self.open_container("--read-only=true", "-v", "{}:/docker ".format(vp))
         # Return the subprocess.
         return self.subprocess
