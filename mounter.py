@@ -3,6 +3,7 @@ Mounting daemon.
 """
 import hmac
 import os
+import shutil
 from asyncio import StreamReader
 from asyncio import StreamWriter
 
@@ -78,9 +79,24 @@ async def cb(reader: StreamReader, writer: StreamWriter):
     writer.close()
 
 async def main():
-    serv = await asyncio.start_unix_server(cb, path="mounter.sock")
+    ud = int(sys.argv[2])
+    try:
+        serv = await asyncio.start_unix_server(cb, path="mounter.sock")
+    except OSError as e:
+        if e.errno == 98:
+            os.remove("mounter.sock")
+            serv = await asyncio.start_unix_server(cb, path="mounter.sock")
+        else:
+            raise
+    os.chown("mounter.sock", ud, 0)
+    logger.info("Switched Mounter owner to {}.".format(ud))
     logger.info("Started Mounter server.")
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())
-loop.run_forever()
+try:
+    loop.run_forever()
+except Exception:
+    # Remove the socket.
+    os.remove("mounter.sock")
+    logger.info("Shutting down Mounter.")
