@@ -34,12 +34,12 @@ async def cb(reader: StreamReader, writer: StreamWriter):
     """
     # Read 1024 bytes off of the stream.
     data = await reader.read(1024)
-    unpacked = msgpack.unpackb(data, use_bin_type=True)
+    unpacked = msgpack.unpackb(data, encoding="utf-8")
     action = unpacked["action"]
     check = unpacked["check"]
     name = unpacked["name"]
     # Check the HMAC.
-    hm = hmac.new(os.environ["MOUNT_PSK"], digestmod="sha256")
+    hm = hmac.new(sys.argv[1].encode(), digestmod="sha256")
     hm.update(name.encode())
     if not hmac.compare_digest(hm.hexdigest(), check):
         # Don't mount it.
@@ -48,8 +48,10 @@ async def cb(reader: StreamReader, writer: StreamWriter):
         return
 
     # Hash the name with sha256.
-    hs = hashlib.sha256(name.encode()).hexdigest()
+    hs = hashlib.sha1(name.encode()).hexdigest()
     if action == "mount":
+        if not os.path.exists(os.path.join("volumes", hs)):
+            os.makedirs(os.path.join("volumes", hs))
         sub = await asyncio.create_subprocess_exec(
             "mount", "-v", os.path.join("images", hs + '.img'), os.path.join("volumes", hs)
         )
@@ -58,6 +60,7 @@ async def cb(reader: StreamReader, writer: StreamWriter):
             logger.critical("Mount returned code {}!".format(rc))
             result = {"success": False, "rc": rc}
         else:
+            logger.info("Mounted volume {}.".format(hs))
             result = {"success": True, "rc": rc}
 
     elif action == "unmount":
@@ -70,12 +73,17 @@ async def cb(reader: StreamReader, writer: StreamWriter):
             result = {"success": False, "rc": rc}
         else:
             result = {"success": True, "rc": rc}
+
+        try:
+            os.rmdir(os.path.join("volumes", hs))
+        except Exception:
+            pass
     else:
         result = {"success": False}
 
     cc = msgpack.packb(result, use_bin_type=True)
 
-    await writer.write(cc)
+    writer.write(cc)
     writer.close()
 
 async def main():
