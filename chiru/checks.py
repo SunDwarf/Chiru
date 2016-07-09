@@ -15,3 +15,7 @@ def has_manage_server(ctx: Context):
 
 def has_manage_channels(ctx: Context):
     return ctx.author.permissions_in(ctx.channel).manage_channels
+
+
+def is_whitelisted(ctx: Context):
+    return ctx.server.id in ctx.bot.config.get("whitelisted_servers", [])

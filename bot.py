@@ -28,11 +28,11 @@ redirect_logging()
 StreamHandler(sys.stderr).push_application()
 
 initial_extensions = [
-    'chiru.cogs.fun',
+    #    'chiru.cogs.fun',
     'chiru.cogs.owner',
-    'chiru.cogs.notifications',
-    'chiru.cogs.commits',
-    'chiru.cogs.shell',
+    #    'chiru.cogs.notifications',
+    #    'chiru.cogs.commits',
+    #    'chiru.cogs.shell',
 ]
 logging.root.setLevel(logging.INFO)
 
@@ -126,7 +126,10 @@ class Chiru(Bot):
         id = (await self.application_info()).id
         self.logger.info("Invite link: {}".format(discord.utils.oauth_url(id)))
         await self.get_redis()
-        for cog in initial_extensions:
+
+        extensions = initial_extensions + self.config.get("autoload", [])
+
+        for cog in extensions:
             try:
                 self.load_extension(cog)
             except Exception as e:
