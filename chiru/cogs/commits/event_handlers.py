@@ -130,6 +130,20 @@ async def commit_comment(bot: Chiru, r: Request):
 
         await bot.send_message(channel, fmt)
 
+async def fork(bot: Chiru, r: Request):
+    repo = r.form["repository"]["full_name"]
+    forkee = r.form["forkee"]
+
+    fmt = "**{repo}:** **{forkee[owner][login])** forked this repo to **{forkee[full_name]}**".format(
+        repo=repo, forkee=forkee
+    )
+
+    for channel in await load_channels(bot, repo):
+        if not channel:
+            continue
+
+        await bot.send_message(channel, fmt)
+
 handlers = {
     "ping": ping,
     "push": push,
@@ -137,4 +151,5 @@ handlers = {
     "issue_comment": issues,
     "watch": star,
     "commit_comment": commit_comment,
+    "fork": fork,
 }
