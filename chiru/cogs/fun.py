@@ -138,6 +138,7 @@ Mutual servers: {mut}```"""
 
         await self.bot.send_file(ctx.channel, BytesIO(file_content), filename="upscaled.png")
 
+        sess.close()
 
 def setup(bot: Chiru):
     bot.add_cog(Fun(bot))
