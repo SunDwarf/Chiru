@@ -3,9 +3,11 @@ Fun commands.
 """
 import functools
 
+import aiohttp
 import discord
 import google
 from discord.ext import commands
+from io import BytesIO
 
 from bot import Chiru
 from chiru import util
@@ -109,6 +111,32 @@ Mutual servers: {mut}```"""
         await self.bot.say("I'm {} - yet another bot.\n"
                            "I was written by Fuyu, the best programmer in the world.\n"
                            "Join my test server: https://discord.gg/Rh6jAXa".format(self.bot.user.name))
+
+    @commands.command(pass_context=True, )
+    async def upscale(self, ctx: Context, *, url: str):
+        """
+        Upscales an image using waifu2x.
+
+        This takes a link to an image, and returns a link to the upscaled image.
+        """
+        sess = aiohttp.ClientSession()
+        await self.bot.say(":hourglass: Upscaling image...")
+
+        params = {
+            "url": url,
+            "scale": "2",  # yikes
+            "noise": "-1",
+            "style": "art"
+        }
+
+        async with sess.post("http://waifu2x.udp.jp/api", data=params) as r:
+            assert isinstance(r, aiohttp.ClientResponse)
+            if r.status != 200:
+                await self.bot.say("Waifu2x returned an error - cannot upscale.")
+                return
+            file_content = await r.read()
+
+        await self.bot.send_file(ctx.channel, BytesIO(file_content), filename="upscaled.png")
 
 
 def setup(bot: Chiru):
