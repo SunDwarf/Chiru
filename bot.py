@@ -196,7 +196,6 @@ class Chiru(Bot):
 
         prefix = self._get_prefix(message)
         invoked_prefix = prefix
-        print(invoked_prefix)
 
         if not isinstance(prefix, (tuple, list)):
             if not view.skip_string(prefix):
