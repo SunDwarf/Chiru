@@ -69,6 +69,9 @@ class Chiru(Bot):
         with open(cfg) as f:
             self.config = yaml.load(f)
 
+        if self.config.get("self_bot"):
+            self._skip_check = discord.User.__ne__
+
         self._redis = None
 
     async def _connect_redis(self):
@@ -123,8 +126,11 @@ class Chiru(Bot):
 
     async def on_ready(self):
         self.logger.info("Loaded Chiru, logged in as `{}`.".format(self.user.name))
-        id = (await self.application_info()).id
-        self.logger.info("Invite link: {}".format(discord.utils.oauth_url(id)))
+        try:
+            id = (await self.application_info()).id
+            self.logger.info("Invite link: {}".format(discord.utils.oauth_url(id)))
+        except discord.Forbidden:
+            pass
         await self.get_redis()
 
         extensions = initial_extensions + self.config.get("autoload", [])
@@ -190,6 +196,7 @@ class Chiru(Bot):
 
         prefix = self._get_prefix(message)
         invoked_prefix = prefix
+        print(invoked_prefix)
 
         if not isinstance(prefix, (tuple, list)):
             if not view.skip_string(prefix):
@@ -220,7 +227,7 @@ class Chiru(Bot):
             self.dispatch('command_error', exc, ctx)
 
     def main(self):
-        self.run(self.config["oauth2_token"])
+        self.run(self.config["oauth2_token"], bot=not self.config.get("self_bot", False))
 
 
 if __name__ == "__main__":

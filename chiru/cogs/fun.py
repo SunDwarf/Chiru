@@ -110,5 +110,6 @@ Mutual servers: {mut}```"""
                            "I was written by Fuyu, the best programmer in the world.\n"
                            "Join my test server: https://discord.gg/Rh6jAXa".format(self.bot.user.name))
 
+
 def setup(bot: Chiru):
     bot.add_cog(Fun(bot))
