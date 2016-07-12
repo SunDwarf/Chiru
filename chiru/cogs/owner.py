@@ -117,6 +117,15 @@ class Owner:
         import ctypes
         ctypes.string_at(1)
 
+    @commands.command(pass_context=True)
+    @commands.check(is_owner)
+    async def debug(self, ctx, *, command: str):
+        """
+        Run a debug command.
+        """
+        result = eval(command)
+        await self.bot.say("`{}`".format(result))
+
 
 def setup(bot: Chiru):
     bot.add_cog(Owner(bot))
