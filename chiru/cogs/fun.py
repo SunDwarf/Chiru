@@ -140,5 +140,6 @@ Mutual servers: {mut}```"""
 
         sess.close()
 
+
 def setup(bot: Chiru):
     bot.add_cog(Fun(bot))

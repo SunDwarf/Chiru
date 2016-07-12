@@ -159,6 +159,8 @@ class Chiru(Bot):
         if message.server is not None:
             self.logger.info(" On server: {} ({})".format(message.server.name, message.server.id))
         else:
+            if self.config.get("self_bot"):
+                return
             if not message.author.bot:
                 # No DMs
                 await self.send_message(message.channel, "I don't accept private messages.")
