@@ -19,14 +19,6 @@ help_text = "Please see https://github.com/SunDwarf/Chiru/wiki/commits to see ho
             "commits."
 
 
-@bp.route("/")
-async def root(r: HTTPRequestContext):
-    """
-    Root method.
-    """
-    return "It works!"
-
-
 async def handle_event(bot: Chiru, request: Request):
     """
     Handles a webhook event.
