@@ -134,7 +134,8 @@ async def fork(bot: Chiru, r: Request):
     repo = r.form["repository"]["full_name"]
     forkee = r.form["forkee"]
 
-    fmt = "**{repo}:** **{forkee[owner][login]}** forked this repo to **{forkee[full_name]}**".format(
+    fmt = "**{repo}:** **{forkee[owner][login]}** forked this repo to **{forkee[full_name]}**" \
+          "\n(<{forkee[html_url]}>)".format(
         repo=repo, forkee=forkee
     )
 
