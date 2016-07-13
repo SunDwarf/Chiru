@@ -160,6 +160,21 @@ Mutual servers: {mut}```"""
 
         sess.close()
 
+    @commands.command(pass_context=True)
+    async def fullwidth(self, ctx: Context, *, text: str):
+        """
+        Fullwidth some text.
+        """
+        final_c = ""
+        for char in text:
+            if not ord(char) in range(33, 127):
+                final_c += char
+                continue
+            # Add 65248 to the ord() value to get the fullwidth counterpart.
+            final_c += chr(ord(char) + 65248)
+
+        await self.bot.say(final_c)
+
 
 def setup(bot: Chiru):
     bot.add_cog(Fun(bot))

@@ -1,13 +1,13 @@
 """
 Owner-only commands.
 """
-
+import asyncio
 import discord
 import traceback
 from discord.ext import commands
-from discord.ext.commands import Context
 
 from bot import Chiru
+from override import Context
 from chiru import util
 from chiru.checks import is_owner
 
@@ -125,6 +125,23 @@ class Owner:
         """
         result = eval(command)
         await self.bot.say("`{}`".format(result))
+
+    @commands.command(pass_context=True)
+    @commands.check(is_owner)
+    async def type(self, ctx: Context, duration: int):
+        """
+        Type for a long time.
+        """
+        try:
+            await self.bot.delete_message(ctx.message)
+        except discord.Forbidden:
+            pass
+
+        channel = ctx.channel
+        to_type = (duration // 5)
+        for x in range(to_type):
+            await self.bot.send_typing(channel)
+            await asyncio.sleep(5)
 
 
 def setup(bot: Chiru):
