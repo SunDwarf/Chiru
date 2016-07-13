@@ -16,6 +16,9 @@ import traceback
 from discord.ext import commands
 from discord.ext.commands import Bot, CommandError, CommandNotFound
 from discord.ext.commands.view import StringView
+from kyokai import Kyokai
+from kyokai.blueprints import Blueprint
+from kyokai.context import HTTPRequestContext
 
 from logbook.compat import redirect_logging
 from logbook import StreamHandler
@@ -38,7 +41,9 @@ logging.root.setLevel(logging.INFO)
 
 
 def _get_command_prefix(bot: 'Chiru', message: discord.Message):
-    if bot.config.get("dev"):
+    if bot.config.get("self_bot"):
+        return "self."
+    elif bot.config.get("dev"):
         return "domo arigato "
     else:
         return "chiru "
@@ -73,6 +78,26 @@ class Chiru(Bot):
             self._skip_check = discord.User.__ne__
 
         self._redis = None
+
+        # Create a new Kyoukai web server.
+        self._webserver = Kyokai("chiru")
+        self._webserver_started = False
+
+        self._webserver.before_request(self.before_request)
+        self._webserver.route("/")(self.root)
+
+    async def root(self, r: HTTPRequestContext):
+        return "Chiru OK!", 200, {"X-Bot": "Chiru"}
+
+    async def before_request(self, r: HTTPRequestContext):
+        r.request.extra["bot"] = self
+        return r.request
+
+    def register_blueprint(self, blueprint: Blueprint):
+        """
+        Add a blueprint to the built-in webserver.
+        """
+        self._webserver.register_blueprint(blueprint)
 
     async def _connect_redis(self):
         """
@@ -143,6 +168,14 @@ class Chiru(Bot):
                 self.logger.exception()
             else:
                 self.logger.info("Loaded extension {}.".format(cog))
+
+        if not self._webserver_started:
+            try:
+                await self._webserver.start("127.0.0.1", 5555)
+            except OSError as e:
+                if e.errno == 98:
+                    self.logger.info("Cannot start built-in webserver; something is already listening.")
+            self._webserver_started = True
 
     def __del__(self):
         self.loop.set_exception_handler(lambda *args, **kwargs: None)

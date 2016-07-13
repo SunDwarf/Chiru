@@ -13,9 +13,8 @@ from logbook import Logger
 
 from bot import Chiru
 from chiru import checks
+from chiru.cogs.commits.web import bp
 from override import Context
-from .web import kyk
-
 logger = Logger("Chiru::Commits")
 
 
@@ -29,18 +28,6 @@ class Commits(object):
         Load the Kyoukai built-in web server.
         """
         self.bot = bot
-
-    async def _kyk_before_request(self, r: HTTPRequestContext):
-        assert isinstance(r.request, Request)
-        r.request.extra["bot"] = self.bot
-        return r.request
-
-    def __unload(self):
-        """
-        Close the web server.
-        """
-        logger.info("Closing Kyoukai server.")
-        kyk.component.server.close()
 
     @commands.group(pass_context=True, invoke_without_command=True)
     async def link(self, ctx: Context):
@@ -123,7 +110,7 @@ class Commits(object):
                         )
                 else:
                     ip = await self._get_ip()
-                    port = kyk.component.port
+                    port = self.bot._webserver.component.port
                     addr = "http://{}:{}/webhook".format(ip, port)
 
                 await self.bot.send_message(ctx.author, "To complete commit linking, add a new webhook to your repo.\n"
@@ -160,6 +147,5 @@ def setup(bot: Chiru):
     bot.add_cog(cog)
 
     # Start Kyoukai.
-    logger.info("Loading Kyoukai web server for commits.")
-    kyk.before_request(cog._kyk_before_request)
-    bot.loop.create_task(kyk.start(port=5555))
+    logger.info("Registering blueprint with built-in webserver.")
+    bot.register_blueprint(bp)

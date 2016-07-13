@@ -3,10 +3,9 @@ Kyoukai web server.
 """
 import hmac
 
-import hashlib
 from kyokai import Request
+from kyokai.blueprints import Blueprint
 from kyokai.context import HTTPRequestContext
-from kyokai.app import Kyōkai
 from logbook import Logger
 
 from bot import Chiru
@@ -14,13 +13,13 @@ from .event_handlers import handlers
 
 logger = Logger("Chiru::Commits")
 
-kyk = Kyōkai("commits")
+bp = Blueprint("commits")
 
 help_text = "Please see https://github.com/SunDwarf/Chiru/wiki/commits to see how to set up Chiru for recording " \
             "commits."
 
 
-@kyk.route("/")
+@bp.route("/")
 async def root(r: HTTPRequestContext):
     """
     Root method.
@@ -72,7 +71,7 @@ async def handle_event(bot: Chiru, request: Request):
     return "", 204
 
 
-@kyk.route("/webhook", methods=["GET", "POST"])
+@bp.route("/webhook", methods=["GET", "POST"])
 async def webhook(r: HTTPRequestContext):
     """
     Webhook request.
