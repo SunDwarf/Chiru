@@ -27,12 +27,32 @@ class Fun(object):
         """
         Show stats about the bot.
         """
+        # Calculate unique members
+        members = sum(1 for x in self.bot.get_all_members())
+        uniques = len({x.id for x in self.bot.get_all_members()})
         await self.bot.say(
-            "Currently connected to `{}` servers, with `{}` channels and `{}` users.".format(
+            "Currently connected to `{}` servers, with `{}` channels and `{}` users (`{}` unique).".format(
                 len(self.bot.servers), len([x for x in self.bot.get_all_channels()]),
-                len([x for x in self.bot.get_all_members()])
+                members, uniques
             )
         )
+
+    @commands.command(pass_context=True)
+    async def servers(self, ctx: Context):
+        """
+        Show the biggest servers.
+        """
+        servers = [s for s in self.bot.servers]
+        servers = sorted(servers, key=lambda x: x.member_count, reverse=True)
+        fmt = """**Top servers**:
+
+**1.** `{0.name}` -> `{0.member_count}` members
+**2.** `{1.name}` -> `{1.member_count}` members
+**3.** `{2.name}` -> `{2.member_count}` members
+**4.** `{3.name}` -> `{3.member_count}` members
+**5.** `{4.name}` -> `{4.member_count}` members
+""".format(*servers[0:6])
+        await self.bot.say(fmt)
 
     @commands.command(pass_context=True)
     async def whois(self, ctx: Context, *, member: discord.Member):
