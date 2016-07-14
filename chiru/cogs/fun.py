@@ -31,9 +31,9 @@ class Fun(object):
         members = sum(1 for x in self.bot.get_all_members())
         uniques = len({x.id for x in self.bot.get_all_members()})
         await self.bot.say(
-            "Currently connected to `{}` servers, with `{}` channels and `{}` users (`{}` unique).".format(
+            "Currently connected to `{}` servers, with `{}` channels and `{}` users (`{}` unique).{}".format(
                 len(self.bot.servers), len([x for x in self.bot.get_all_channels()]),
-                members, uniques
+                members, uniques, "\nRunning in self-bot mode." if self.bot.config.get("self_bot") else ""
             )
         )
 
@@ -174,6 +174,13 @@ Mutual servers: {mut}```"""
             final_c += chr(ord(char) + 65248)
 
         await self.bot.say(final_c)
+
+    @commands.command(pass_context=True)
+    async def rehost(self, ctx: Context, *, url: str):
+        """
+        Rehost a pastebin.com url.
+        """
+        id = url.split("/")[-1]
 
 
 def setup(bot: Chiru):
