@@ -175,12 +175,6 @@ Mutual servers: {mut}```"""
 
         await self.bot.say(final_c)
 
-    @commands.command(pass_context=True)
-    async def rehost(self, ctx: Context, *, url: str):
-        """
-        Rehost a pastebin.com url.
-        """
-        id = url.split("/")[-1]
 
 
 def setup(bot: Chiru):
