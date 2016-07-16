@@ -226,7 +226,7 @@ Mutual servers: {mut}```"""
         if len(messages) <= 10:
             # Just say them in the normal channel.
             for num, message in enumerate(messages):
-                fmt += "**{}:** `[{}] {}: {}`\n".format(num, message.timestamp,
+                fmt += "**{}:** `[{}] {}: {}`\n".format(num + 1, message.timestamp,
                                                         message.author.name.replace("`", "´"),
                                                         message.clean_content.replace("`", "´"),
                                                         )
