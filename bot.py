@@ -84,6 +84,8 @@ class Chiru(Bot):
         self._webserver = Kyokai("chiru")
         self._webserver_started = False
 
+        self._webserver.debug = self.config.get("dev", False)
+
         self._webserver.before_request(self.before_request)
         self._webserver.route("/")(self.root)
 
