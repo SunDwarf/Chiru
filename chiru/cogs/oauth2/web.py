@@ -92,6 +92,18 @@ async def oauth2_login(ctx: HTTPRequestContext):
     return redirect(url, 302)
 
 
+@bp.route("/oauth2/authorize")
+async def oauth2_authorize(ctx: HTTPRequestContext):
+    """
+    Authorize the bot at the same time.
+    """
+    scopes = ["identify", "guilds", "guilds.join", "bot"]
+    flow = OAuth2Provider(ctx.request.extra["bot"])
+
+    url = flow.get_auth_url(scopes)
+    return redirect(url, 302)
+
+
 @bp.route("/oauth2/redirect")
 async def oauth2_redirect(ctx: HTTPRequestContext):
     assert isinstance(ctx.request, Request)
