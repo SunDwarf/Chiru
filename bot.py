@@ -86,6 +86,10 @@ class Chiru(Bot):
         self._webserver.before_request(self.before_request)
         self._webserver.route("/")(self.root)
 
+    @property
+    def is_self_bot(self):
+        return self.config.get("self_bot", False)
+
     async def root(self, r: HTTPRequestContext):
         return "Chiru OK!", 200, {"X-Bot": "Chiru"}
 

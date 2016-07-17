@@ -23,3 +23,10 @@ def safe_roles(roles: list):
             names.append(role.name)
 
     return names
+
+
+def chunk(fmt):
+    """
+    Chunk data into readable chunks.
+    """
+    return [fmt[i:i + 1500] for i in range(0, len(fmt), 1500)]

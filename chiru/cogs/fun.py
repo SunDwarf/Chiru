@@ -223,6 +223,8 @@ Mutual servers: {mut}```"""
 
         messages = list(reversed(messages))
 
+        # yikes
+
         if len(messages) <= 10:
             # Just say them in the normal channel.
             for num, message in enumerate(messages):
@@ -230,9 +232,28 @@ Mutual servers: {mut}```"""
                                                         message.author.name.replace("`", "´"),
                                                         message.clean_content.replace("`", "´"),
                                                         )
-            await self.bot.say(fmt)
+
+            if len(fmt) > 1500:
+                fmt = util.chunk(fmt)
+                if not self.bot.is_self_bot:
+                    await self.bot.say("Private messaging you the search results.")
+                    chan = ctx.author
+                else:
+                    await self.bot.say("Self-bot mode; sending messages to channel you specified.")
+                    chan = self.bot.get_channel(self.bot.config["self_vars"].get("find_channel"))
+            else:
+                chan = ctx.channel
+                fmt = [fmt]
+
+            for f in fmt:
+                await self.bot.send_message(chan, f)
         else:
-            await self.bot.say("Private messaging you the search results.")
+            if not self.bot.is_self_bot:
+                await self.bot.say("Private messaging you the search results.")
+                chan = ctx.author
+            else:
+                await self.bot.say("Self-bot mode; sending messages to channel you specified.")
+                chan = self.bot.get_channel(self.bot.config["self_vars"].get("find_channel"))
             sp = [messages[i:i + 10] for i in range(0, len(messages), 10)]
             # yikes, counters
             counter = 0
@@ -242,9 +263,8 @@ Mutual servers: {mut}```"""
                     counter += 1
                     msg_block += "**{}:** `[{}] {}: {}`\n".format(counter, message.timestamp,
                                                                   message.author.name.replace("`", "´"),
-                                                                  message.clean_content.replace("`", "´"),
-                                                                  )
-                await self.bot.whisper(msg_block)
+                                                                  message.clean_content.replace("`", "´"))
+                await self.bot.send_message(chan, msg_block)
 
 
 def setup(bot: Chiru):
