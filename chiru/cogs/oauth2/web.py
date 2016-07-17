@@ -115,7 +115,7 @@ async def oauth2_redirect(ctx: HTTPRequestContext):
 
     # Set the cookie.
 
-    response = redirect("/oauth2/user_info", 302)
+    response = redirect("/oauth2/join_server", 302)
     response.cookies["KySess"] = bot.http_signer.dumps(userid)
 
     return response
