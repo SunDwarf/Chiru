@@ -19,6 +19,7 @@ from discord.ext.commands.view import StringView
 from kyokai import Kyokai
 from kyokai.blueprints import Blueprint
 from kyokai.context import HTTPRequestContext
+import itsdangerous
 
 from logbook.compat import redirect_logging
 from logbook import StreamHandler
@@ -85,6 +86,11 @@ class Chiru(Bot):
 
         self._webserver.before_request(self.before_request)
         self._webserver.route("/")(self.root)
+
+        try:
+            self.http_signer = itsdangerous.Serializer(secret_key=self.config["oauth2"]["http_secret"])
+        except KeyError:
+            self.http_signer = None
 
     @property
     def is_self_bot(self):
