@@ -9,3 +9,6 @@ redis:
   port: 6379
   db: 0
   password: null
+
+# SQLALchemy url.
+db_url: postgresql://chiru@127.0.0.1/chiru
