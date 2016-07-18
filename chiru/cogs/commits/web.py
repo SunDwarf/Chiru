@@ -9,6 +9,7 @@ from kyokai.context import HTTPRequestContext
 from logbook import Logger
 
 from bot import Chiru
+from chiru import db
 from .event_handlers import handlers
 
 logger = Logger("Chiru::Commits")
@@ -37,7 +38,7 @@ async def handle_event(bot: Chiru, request: Request):
     # Check if the repo even exists to handle.
 
     repo = request.form["repository"]["full_name"]
-    secret = await bot.get_key("commit_{}_secret".format(repo))
+    secret = await db.CommitLink.get_secret(repo)
     if not secret:
         logger.warn("Asked to handle something that does not exist - ignoring.")
         return "", 404
