@@ -114,6 +114,10 @@ class Owner:
     @commands.command(pass_context=True)
     @commands.check(is_owner)
     async def die(self, ctx):
+        """
+        Segfault the bot in order to kill it.
+        """
+
         import ctypes
         ctypes.string_at(1)
 
