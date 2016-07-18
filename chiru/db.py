@@ -49,14 +49,14 @@ class ChiruDatabase:
         channel_id = channel.id
         channel_name = channel.name
 
-        channel = self.session.query(Channel).filter(Channel.id == channel_id).first()
-        if not channel:
+        channel = self.session.query(Channel).filter(Channel.id == int(channel_id)).first()
+        if channel is None:
             # Create a new channel object.
             channel = Channel(id=channel_id, name=channel_name)
 
         # Create a new CommitLink.
         link = self.session.query(CommitLink).filter(CommitLink.repo_name == repo).first()
-        if not link:
+        if link is None:
             link = CommitLink(
                 repo_name=repo,
                 secret=''.join(
@@ -82,7 +82,7 @@ class ChiruDatabase:
         Automatically asyncified with the threadpool decorator.
         """
         repo = self.session.query(CommitLink).filter(CommitLink.repo_name == repo).first()
-        if not repo:
+        if repo is None:
             return []
         channels = [c for c in repo.channels]
 
@@ -94,7 +94,7 @@ class ChiruDatabase:
         Used by the Commits module to get the repositories associated with a channel.
         """
         channel = self.session.query(Channel).filter(Channel.id == channel.id).first()
-        if not channel:
+        if channel is None:
             return []
         repos = [r for r in channel.links]
 
@@ -110,6 +110,26 @@ class ChiruDatabase:
             return None
 
         return repo.secret
+
+    @threadpool
+    def remove_link(self, channel: discord.Channel, repo: str):
+        """
+        Remove a channel link.
+        """
+        repo = self.session.query(CommitLink).filter(CommitLink.repo_name == repo).first()
+        if repo is None:
+            return False
+
+        channel = self.session.query(Channel).filter(Channel.id == int(channel.id)).first()
+
+        try:
+            repo.channels.remove(channel)
+            self.session.commit()
+        except Exception:
+            return False
+        else:
+            return True
+
 
     def __repr__(self):
         return "<ChiruDatabase connected to `{}`>".format(self.db_uri)
