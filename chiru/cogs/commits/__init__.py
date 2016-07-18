@@ -3,14 +3,8 @@ Commits main file.
 """
 import aiohttp
 import aioredis
-import random
-import string
-
-import self as self
-from kyokai import Request
 
 from discord.ext import commands
-from kyokai.context import HTTPRequestContext
 from logbook import Logger
 
 from bot import Chiru
