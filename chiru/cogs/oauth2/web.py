@@ -4,6 +4,7 @@ OAuth2 web data.
 import json
 
 import discord
+from itsdangerous import BadSignature
 from kyokai import Request
 from kyokai.blueprints import Blueprint
 from kyokai.context import HTTPRequestContext
@@ -22,10 +23,13 @@ async def oauth2_join_server(ctx: HTTPRequestContext):
     Join the server specified by the config.
     """
     if ctx.request.cookies.get("KySess") is None:
-        return redirect("/oauth2/login")
+        return redirect("/oauth2/login", 302)
 
     bot = ctx.request.extra["bot"]
-    token_data = bot.http_signer.loads(ctx.request.cookies["KySess"].value)
+    try:
+        token_data = bot.http_signer.loads(ctx.request.cookies["KySess"].value)
+    except BadSignature:
+        return redirect("/oauth2/login", 302)
 
     flow = OAuth2Provider(bot)
 
@@ -56,10 +60,13 @@ async def oauth2_join_server(ctx: HTTPRequestContext):
 @bp.route("/oauth2/server_list")
 async def oauth2_server_info(ctx: HTTPRequestContext):
     if ctx.request.cookies.get("KySess") is None:
-        return redirect("/oauth2/login")
+        return redirect("/oauth2/login", 302)
 
     bot = ctx.request.extra["bot"]
-    token_data = bot.http_signer.loads(ctx.request.cookies["KySess"].value)
+    try:
+        token_data = bot.http_signer.loads(ctx.request.cookies["KySess"].value)
+    except BadSignature:
+        return redirect("/oauth2/login", 302)
 
     flow = OAuth2Provider(bot)
     server_data = await flow.get_server_data(token_data)
@@ -70,10 +77,13 @@ async def oauth2_server_info(ctx: HTTPRequestContext):
 @bp.route("/oauth2/user_info")
 async def oauth2_user_info(ctx: HTTPRequestContext):
     if ctx.request.cookies.get("KySess") is None:
-        return redirect("/oauth2/login")
+        return redirect("/oauth2/login", 302)
     # Get user info using OAuth 2.
     bot = ctx.request.extra["bot"]
-    token_data = bot.http_signer.loads(ctx.request.cookies["KySess"].value)
+    try:
+        token_data = bot.http_signer.loads(ctx.request.cookies["KySess"].value)
+    except BadSignature:
+        return redirect("/oauth2/login", 302)
 
     flow = OAuth2Provider(bot)
     user_data = await flow.get_user_data(token_data)
