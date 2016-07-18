@@ -99,11 +99,7 @@ class Chiru(Bot):
         except KeyError:
             self.http_signer = None
 
-        # Create a database handler.
-        try:
-            self.db = ChiruDatabase(self.config.get("db_url"))
-        except TypeError:
-            self.db = None
+        self.db = ChiruDatabase(self.config.get("db_url"))
 
     @property
     def is_self_bot(self):

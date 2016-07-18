@@ -26,7 +26,7 @@ class ChiruDatabase:
     def __init__(self, uri):
         if uri is None:
             # AAAA
-            raise TypeError("Database URI is not specified in config!")
+            return
         self.db_uri = uri
 
         self.engine = sa.create_engine(self.db_uri)
