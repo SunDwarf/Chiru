@@ -17,6 +17,7 @@ from discord.ext import commands
 from discord.ext.commands import Bot, CommandError, CommandNotFound
 from discord.ext.commands.view import StringView
 from kyokai import Kyokai
+from kyokai.asphalt import KyoukaiComponent
 from kyokai.blueprints import Blueprint
 from kyokai.context import HTTPRequestContext
 import itsdangerous
@@ -183,7 +184,10 @@ class Chiru(Bot):
 
         if not self._webserver_started:
             try:
-                await self._webserver.start("127.0.0.1", 5555)
+                component = KyoukaiComponent(self._webserver, "127.0.0.1", 5555,
+                                             renderer="template_mako")
+                self._webserver.component = component
+                await self._webserver.start(component=component)
             except OSError as e:
                 if e.errno == 98:
                     self.logger.info("Cannot start built-in webserver; something is already listening.")
