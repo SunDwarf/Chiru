@@ -52,16 +52,22 @@ class ChiruDatabase:
         if not channel:
             # Create a new channel object.
             channel = Channel(id=channel_id, name=channel_name)
-            self.session.add(channel)
 
         # Create a new CommitLink.
-        link = CommitLink(
-            repo_name=repo,
-            secret=''.join(
-                random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(16)
+        link = self.session.query(CommitLink).filter(CommitLink.repo_name == repo).first()
+        if not link:
+            link = CommitLink(
+                repo_name=repo,
+                secret=''.join(
+                    random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(16)
+                )
             )
-        )
-        self.session.add(link)
+
+        if channel not in link.channels:
+            link.channels.append(channel)
+
+        self.session.merge(channel)
+        self.session.merge(link)
         self.session.commit()
 
         return link
@@ -73,9 +79,20 @@ class ChiruDatabase:
 
         Automatically asyncified with the threadpool decorator.
         """
-        channels = self.session.query(CommitLink).filter(CommitLink.repo_name == repo).all()
+        repo = self.session.query(CommitLink).filter(CommitLink.repo_name == repo).first()
+        channels = [c for c in repo.channels]
 
         return channels
+
+    @threadpool
+    def get_repos_for_channel(self, channel: discord.Channel):
+        """
+        Used by the Commits module to get the repository
+        """
+        channel = self.session.query(Channel).filter(Channel.id == channel.id).first()
+        repos = [r for r in channel.links]
+
+        return repos
 
     def __repr__(self):
         return "<ChiruDatabase connected to `{}`>".format(self.db_uri)
