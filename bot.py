@@ -190,7 +190,9 @@ class Chiru(Bot):
 
         if not self._webserver_started:
             try:
-                component = KyoukaiComponent(self._webserver, "127.0.0.1", 5555,
+                component = KyoukaiComponent(self._webserver,
+                                             self.config.get("webserver", {}).get("ip", "127.0.0.1"),
+                                             self.config.get("port", {}).get("port", 5555),
                                              renderer="template_mako")
                 self._webserver.component = component
                 await self._webserver.start(component=component)
