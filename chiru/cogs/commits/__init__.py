@@ -5,6 +5,8 @@ import aiohttp
 import aioredis
 import random
 import string
+
+import self as self
 from kyokai import Request
 
 from discord.ext import commands
@@ -15,6 +17,7 @@ from bot import Chiru
 from chiru import checks
 from chiru.cogs.commits.web import bp
 from override import Context
+
 logger = Logger("Chiru::Commits")
 
 
@@ -24,9 +27,6 @@ class Commits(object):
     """
 
     def __init__(self, bot: Chiru):
-        """
-        Load the Kyoukai built-in web server.
-        """
         self.bot = bot
 
     @commands.group(pass_context=True, invoke_without_command=True)
@@ -36,16 +36,13 @@ class Commits(object):
 
         This base command will just show the current links for this channel.
         """
-        async with (await self.bot.get_redis()).get() as conn:
-            assert isinstance(conn, aioredis.Redis)
-            # Get the set of items.
-            s = await conn.smembers("commit_{}".format(ctx.channel.id))
+        repos = await self.bot.db.get_repos_for_channel(ctx.channel)
 
-        if len(s) == 0:
+        if len(repos) == 0:
             await self.bot.say("**Not currently tracking any repos for this channel.**")
             return
 
-        s = {_.decode() for _ in s}
+        s = {repo.repo_name for repo in repos}
 
         t = "**Currently tracking {} repo(s) for this channel:**\n".format(len(s))
         t += '\n'.join(s)
@@ -74,49 +71,40 @@ class Commits(object):
 
         This link must be in the format of `Username/Repository`.
         """
-        needs_webhook = True
-        async with (await self.bot.get_redis()).get() as conn:
-            assert isinstance(conn, aioredis.Redis)
-            # Store the forward and reverse links.
-            await conn.sadd("commit_{}".format(ctx.channel.id), repo)
-            if await conn.smembers("commit_{}".format(repo)):
-                # The repo already has a webhook set up, evidently.
-                # Don't attempt to re-add the web hook.
-                needs_webhook = False
-            await conn.sadd("commit_{}".format(repo), ctx.channel.id)
 
-            logger.info("Creating webhook -> {}".format(needs_webhook))
-            if not needs_webhook:
-                await self.bot.say("Linked `{}` to `{}`.".format(repo, ctx.channel.name))
-                return
+        # lol easy command
+        link, created = await self.bot.db.create_link(ctx.channel, repo)
+
+        if not created:
+            await self.bot.say(":heavy_check_mark: Linked `{}` to `{}`.".format(repo, ctx.channel.name))
+            return
+
+        # Give instructions on how to link the repo.
+        await self.bot.say(
+            "Linked `{}` to `{}`. PMing you with webhook creation information.".format(repo, ctx.channel.name)
+        )
+        secret = link.secret
+
+        # Format the webhook url.
+        if self.bot.config.get("commitbot"):
+            cc = self.bot.config["commitbot"]
+            _addr = cc.get("hookaddr")
+            if _addr:
+                addr = _addr
             else:
-                await self.bot.say(
-                    "Linked `{}` to `{}`. PMing you with webhook creation information.".format(repo, ctx.channel.name)
+                addr = "http://{}{}/webhook".format(
+                    cc.get("host"), ':' + cc.get("port") if cc.get("port") else ''
                 )
-                # Generate a random secret.
-                r = ''.join(
-                    random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(16))
-                await conn.set("commit_{}_secret".format(repo), r)
 
-                # Format the webhook url.
-                if self.bot.config.get("commitbot"):
-                    cc = self.bot.config["commitbot"]
-                    _addr = cc.get("hookaddr")
-                    if _addr:
-                        addr = _addr
-                    else:
-                        addr = "http://{}{}/webhook".format(
-                            cc.get("host"), ':' + cc.get("port") if cc.get("port") else ''
-                        )
-                else:
-                    ip = await self._get_ip()
-                    port = self.bot._webserver.component.port
-                    addr = "http://{}:{}/webhook".format(ip, port)
+        else:
+            ip = await self._get_ip()
+            port = self.bot._webserver.component.port
+            addr = "http://{}:{}/webhook".format(ip, port)
 
-                await self.bot.send_message(ctx.author, "To complete commit linking, add a new webhook to your repo.\n"
-                                                        "The webhook should point to `{}`, "
-                                                        "and must have the "
-                                                        "secret of `{}`.".format(addr, r))
+        fmt = "To complete commit linking, add a new webhook to your repo.\n The webhook should point to `{}`, " \
+              "and must have the secret of `{}`.".format(addr, secret)
+
+        await self.bot.send_message(ctx.author, fmt)
 
     @link.command(pass_context=True)
     @commands.check(checks.has_manage_channels)
