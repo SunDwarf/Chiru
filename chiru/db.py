@@ -77,7 +77,7 @@ class ChiruDatabase:
     @threadpool
     def get_channels_for_repo(self, repo: str):
         """
-        Used by the Commits module to get commits for a repository.
+        Used by the Commits module to get the channels for a repository.
 
         Automatically asyncified with the threadpool decorator.
         """
@@ -91,7 +91,7 @@ class ChiruDatabase:
     @threadpool
     def get_repos_for_channel(self, channel: discord.Channel):
         """
-        Used by the Commits module to get the repository
+        Used by the Commits module to get the repositories associated with a channel.
         """
         channel = self.session.query(Channel).filter(Channel.id == channel.id).first()
         if not channel:
@@ -99,6 +99,17 @@ class ChiruDatabase:
         repos = [r for r in channel.links]
 
         return repos
+
+    @threadpool
+    def get_secret(self, repo: str):
+        """
+        Used by the commits module to get the secret of the specified repo.
+        """
+        repo = self.session.query(CommitLink).filter(CommitLink.repo_name == repo).first()
+        if not repo:
+            return None
+
+        return repo.secret
 
     def __repr__(self):
         return "<ChiruDatabase connected to `{}`>".format(self.db_uri)

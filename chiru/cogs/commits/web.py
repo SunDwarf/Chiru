@@ -38,7 +38,7 @@ async def handle_event(bot: Chiru, request: Request):
     # Check if the repo even exists to handle.
 
     repo = request.form["repository"]["full_name"]
-    secret = await db.CommitLink.get_secret(repo)
+    secret = await bot.db.get_secret(repo)
     if not secret:
         logger.warn("Asked to handle something that does not exist - ignoring.")
         return "", 404

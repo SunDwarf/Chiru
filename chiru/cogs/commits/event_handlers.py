@@ -12,11 +12,9 @@ async def load_channels(bot: Chiru, repo: str):
     """
     Load the channels to send the bot to.
     """
-    async with (await bot.get_redis()).get() as conn:
-        assert isinstance(conn, aioredis.Redis)
-        ids = await conn.smembers("commit_{}".format(repo))
+    _channel_db = await bot.db.get_channels_for_repo(repo)
 
-    channels = [bot.get_channel(id.decode()) for id in ids]
+    channels = [bot.get_channel(str(channel.id)) for channel in _channel_db]
     return channels
 
 
