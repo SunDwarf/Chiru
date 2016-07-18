@@ -66,6 +66,9 @@ class Chiru(Bot):
         # We still have to do this
         logging.root.setLevel(logging.INFO)
 
+        # Set SQLAlchemy's logger to INFO
+        logging.getLogger("sqlalchemy").setLevel(logging.INFO)
+
         try:
             cfg = sys.argv[1]
         except IndexError:
