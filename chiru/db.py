@@ -45,6 +45,7 @@ class ChiruDatabase:
 
         This returns the Link object.
         """
+        created = False
         channel_id = channel.id
         channel_name = channel.name
 
@@ -62,6 +63,7 @@ class ChiruDatabase:
                     random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(16)
                 )
             )
+            created = True
 
         if channel not in link.channels:
             link.channels.append(channel)
@@ -70,7 +72,7 @@ class ChiruDatabase:
         self.session.merge(link)
         self.session.commit()
 
-        return link
+        return link, created
 
     @threadpool
     def get_channels_for_repo(self, repo: str):
@@ -80,6 +82,8 @@ class ChiruDatabase:
         Automatically asyncified with the threadpool decorator.
         """
         repo = self.session.query(CommitLink).filter(CommitLink.repo_name == repo).first()
+        if not repo:
+            return []
         channels = [c for c in repo.channels]
 
         return channels
@@ -90,6 +94,8 @@ class ChiruDatabase:
         Used by the Commits module to get the repository
         """
         channel = self.session.query(Channel).filter(Channel.id == channel.id).first()
+        if not channel:
+            return []
         repos = [r for r in channel.links]
 
         return repos
