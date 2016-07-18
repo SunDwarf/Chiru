@@ -130,7 +130,6 @@ class ChiruDatabase:
         else:
             return True
 
-
     def __repr__(self):
         return "<ChiruDatabase connected to `{}`>".format(self.db_uri)
 

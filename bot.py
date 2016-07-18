@@ -242,6 +242,10 @@ class Chiru(Bot):
                     lines = traceback.format_exception(type(e), e, e.__traceback__)
                 await self.send_message(message.channel, "```py\n{}\n```".format(''.join(lines)))
 
+    async def send_message(self, destination, content, *, tts=False):
+        content = "\u200b{}".format(content)
+        await super().send_message(destination, content, tts=tts)
+
     async def process_commands(self, message):
         """
         Override of process_commands to use our own context.
