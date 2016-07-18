@@ -11,7 +11,6 @@ from kyokai.context import HTTPRequestContext
 from kyokai.response import redirect
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 
-from bot import Chiru
 from chiru.cogs.oauth2.flow import OAuth2Provider
 
 bp = Blueprint("oauth2")

@@ -67,15 +67,15 @@ class Notifications(object):
             await self.bot.send_message(member.server.default_channel, "**{}** has joined!".format(member.name))
 
     async def on_member_ban(self, member: discord.Member):
-        if (await self.bot.get_config(member.server, "notifications")) == ["all", "bans"]:
+        if (await self.bot.get_config(member.server, "notifications")) in ["all", "bans"]:
             await self.bot.send_message(member.server.default_channel, "**{}** got bent".format(member.name))
 
     async def on_member_unban(self, server: discord.Server, user: discord.User):
-        if (await self.bot.get_config(server, "notifications")) == ["all", "bans"]:
+        if (await self.bot.get_config(server, "notifications")) in ["all", "bans"]:
             await self.bot.send_message(server.default_channel, "**{}** got unbanned.".format(user.name))
 
     async def on_member_remove(self, member: discord.Member):
-        if (await self.bot.get_config(member.server, "notifications")) == ["all", "joins"]:
+        if (await self.bot.get_config(member.server, "notifications")) in ["all", "joins"]:
             await self.bot.send_message(member.server.default_channel, "**{}** left".format(member.name))
 
 
