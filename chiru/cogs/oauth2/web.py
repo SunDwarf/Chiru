@@ -16,7 +16,7 @@ from chiru.cogs.oauth2.flow import OAuth2Provider
 bp = Blueprint("oauth2")
 
 
-@bp.route("/oauth2/join_server")
+@bp.route("/oauth2/join")
 async def oauth2_join_server(ctx: HTTPRequestContext):
     """
     Join the server specified by the config.
@@ -33,27 +33,36 @@ async def oauth2_join_server(ctx: HTTPRequestContext):
     flow = OAuth2Provider(bot)
 
     # Get the ID.
-    s_id = bot.config["oauth2"].get("server_id")
-    if not s_id:
-        return json.dumps({"error": "not found"}), 404, {"Content-Type": "application/json"}
+    s_data = bot.config["oauth2"].get("servers", {}).get(ctx.request.args.get("server", None))
+    if not s_data:
+        return json.dumps({"error": "server not found"}), 404, {"Content-Type": "application/json"}
 
-    serv = bot.get_server(s_id)
-    if not serv:
-        return json.dumps({"error": "bad server"}), 404, {"Content-Type": "application/json"}
-
-    invites = await bot.invites_from(serv)
-    if len(invites) == 0:
-        try:
-            invite = await bot.create_invite(serv)
-        except discord.Forbidden:
+    if s_data["type"] == "id":
+        s_id = s_data["id"]
+        serv = bot.get_server(s_id)
+        if not serv:
             return json.dumps({"error": "bad server"}), 404, {"Content-Type": "application/json"}
+
+        invites = await bot.invites_from(serv)
+        if len(invites) == 0:
+            try:
+                invite = await bot.create_invite(serv)
+            except discord.Forbidden:
+                return json.dumps({"error": "bad server"}), 404, {"Content-Type": "application/json"}
+        else:
+            invite = invites[0]
+
     else:
-        invite = invites[0]
+        # Use the invite code.
+        invite = s_data["code"]
 
     # Forcibly accept the invite.
     req = await flow.accept_invite(token_data, invite)
 
-    return req.text, 200, {"Content-Type": "application/json"}
+    if req.status_code == 401:
+        return redirect("/oauth2/login", 302)
+
+    return req.text, req.status_code, {"Content-Type": "application/json"}
 
 
 @bp.route("/oauth2/server_list")
@@ -69,6 +78,9 @@ async def oauth2_server_info(ctx: HTTPRequestContext):
 
     flow = OAuth2Provider(bot)
     server_data = await flow.get_server_data(token_data)
+
+    if server_data.status_code == 401:
+        return redirect("/oauth2/login", 302)
 
     return server_data.text, 200, {"Content-Type": "application/json"}
 
@@ -86,6 +98,10 @@ async def oauth2_user_info(ctx: HTTPRequestContext):
 
     flow = OAuth2Provider(bot)
     user_data = await flow.get_user_data(token_data)
+
+    if user_data.status_code == 401:
+        return redirect("/oauth2/login", 302)
+
     return user_data.text, 200, {"Content-Type": "application/json"}
 
 
@@ -136,7 +152,7 @@ async def oauth2_redirect(ctx: HTTPRequestContext):
 
     # Set the cookie.
 
-    response = redirect("/oauth2/join_server", 302)
+    response = redirect("/", 302)
     response.cookies["KySess"] = bot.http_signer.dumps(userid)
 
     return response
