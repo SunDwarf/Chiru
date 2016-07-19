@@ -266,6 +266,35 @@ Mutual servers: {mut}```"""
                                                                   message.clean_content.replace("`", "´"))
                 await self.bot.send_message(chan, msg_block)
 
+    @commands.command(pass_context=True)
+    async def serverinfo(self, ctx: Context):
+        """
+        Mandatory server info command.
+        """
+        fmt = """Server information:
+```xl
+Server name: {server.name}
+ID: {server.id}
+Server region: {server.region.name}
+
+Owner: {server.owner.display_name}#{server.owner.discriminator}
+
+Channels: {channels} channels ({secret} secret!)
+Roles: {roles} roles
+Admins: {admins} admins
+```"""
+        channels = len(ctx.server.channels)
+        secret_channels = sum(1 for chan in ctx.server.channels if
+                              chan.overwrites_for(ctx.server.default_role).read_messages is False
+                              and chan.type == discord.ChannelType.text
+                              )
+        roles = len(ctx.server.roles)
+        admins = sum(
+            1 for member in ctx.server.members if ctx.server.default_channel.permissions_for(member).administrator
+        )
+
+        await self.bot.say(fmt.format(server=ctx.server, channels=channels, secret=secret_channels,
+                                      roles=roles, admins=admins))
 
 def setup(bot: Chiru):
     bot.add_cog(Fun(bot))
