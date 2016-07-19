@@ -296,5 +296,6 @@ Admins: {admins} admins
         await self.bot.say(fmt.format(server=ctx.server, channels=channels, secret=secret_channels,
                                       roles=roles, admins=admins))
 
+
 def setup(bot: Chiru):
     bot.add_cog(Fun(bot))

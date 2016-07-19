@@ -69,12 +69,12 @@ async def issues(bot: Chiru, r: Request):
     elif action == "created":  # what
         fmt = "**{repo}:** **{sender[login]}** " \
               "commented on issue **#{issue[number]} {issue[title]}**\n(<{issue[html_url]}>)" \
-                .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
+            .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
 
     elif action == "closed":
         fmt = "**{repo}:** **{sender[login]}** closed issue **#{issue[number]} {issue[title]}**" \
               "\n(<{issue[html_url]}>)" \
-                .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
+            .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
 
     elif action == "labeled":
         fmt = "**{repo}:** **{sender[login]}** added labels `{labels}` to issue " \
@@ -85,7 +85,7 @@ async def issues(bot: Chiru, r: Request):
     elif action == "reopened":
         fmt = "**{repo}:** **{sender[login]}** re-opened issue " \
               "**#{issue[number]} {issue[title]}**\n(<{issue[html_url]}>)" \
-                .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
+            .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
 
     else:
         fmt = "**{repo}:** Unknown issue event recieved: {event}".format(repo=repo, event=action)
@@ -94,6 +94,7 @@ async def issues(bot: Chiru, r: Request):
         if not channel:
             continue
         await bot.send_message(channel, fmt)
+
 
 async def star(bot: Chiru, r: Request):
     """
@@ -109,6 +110,7 @@ async def star(bot: Chiru, r: Request):
             continue
 
         await bot.send_message(channel, fmt)
+
 
 async def commit_comment(bot: Chiru, r: Request):
     """
@@ -128,6 +130,7 @@ async def commit_comment(bot: Chiru, r: Request):
 
         await bot.send_message(channel, fmt)
 
+
 async def fork(bot: Chiru, r: Request):
     repo = r.form["repository"]["full_name"]
     forkee = r.form["forkee"]
@@ -143,6 +146,37 @@ async def fork(bot: Chiru, r: Request):
 
         await bot.send_message(channel, fmt)
 
+
+async def pr(bot: Chiru, r: Request):
+    # Pull requests
+    repo = r.form["repository"]["full_name"]
+
+    action = r.form["action"]
+
+    if action == "opened" or action == "reopened":
+        fmt = "**{repo}:** **{pull_request[user][login]}** wants to merge {pull_request[commits]} commit(s) " \
+              "in pull request **#{pull_request[number]}** - **{pull_request[title]}**" \
+              "\n(<{pull_request[html_url]}>)".format(
+            repo=repo, pull_request=r.form["pull_request"]
+        )
+
+    elif action == "closed":
+        fmt = "**{repo}:** **#{pull_request[number]}** - **{pull_request[title]}** was {status}.\n" \
+              "(<{pull_request[html_url]}>)".format(
+            repo=repo, pull_request=r.form["pull_request"],
+            status="merged" if r.form["pull_request"]["merged"] else "closed"
+        )
+
+    else:
+        return
+
+    for channel in await load_channels(bot, repo):
+        if not channel:
+            continue
+
+        await bot.send_message(channel, fmt)
+
+
 handlers = {
     "ping": ping,
     "push": push,
@@ -151,4 +185,5 @@ handlers = {
     "watch": star,
     "commit_comment": commit_comment,
     "fork": fork,
+    "pull_request": pr
 }
