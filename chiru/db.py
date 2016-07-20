@@ -143,11 +143,99 @@ association_table = sa.Table(
 )
 
 
+class UsernameChange(Base):
+    """
+    Tracks username changes.
+    """
+    __tablename__ = "username_change"
+
+    id = sa.Column(sa.Integer, primary_key=True)
+
+    before = sa.Column(sa.String)
+    after = sa.Column(sa.String)
+
+    user_id = sa.Column(sa.Integer, sa.ForeignKey("user.id"))
+
+
+class NicknameChange(Base):
+    """
+    Tracks nickname changes.
+    """
+    __tablename__ = "nickname_change"
+
+    id = sa.Column(sa.Integer, primary_key=True)
+
+    before = sa.Column(sa.String)
+    after = sa.Column(sa.String)
+
+    member_id = sa.Column(sa.Integer, sa.ForeignKey("member.id"))
+
+
+class User(Base):
+    """
+    Represents a User.
+    """
+    __tablename__ = "user"
+
+    # Snowflake ID.
+    id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=False)
+
+    created_at = sa.Column(sa.DateTime)
+
+    # Track username changes.
+    usernames = relationship("UsernameChange", backref="user")
+
+    # Track member instances.
+    members = relationship("Member", backref="user")
+
+
+class Member(Base):
+    """
+    Represents a Member object.
+
+    This is a User w/ a server.
+
+    Tracks member data changes, and such.
+    """
+    __tablename__ = "member"
+
+    # Member ID != User ID.
+    id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=True)
+
+    joined_at = sa.Column(sa.DateTime)
+
+    nicknames = relationship("NicknameChange", backref="member")
+
+    # Track the user.
+    user_id = sa.Column(sa.Integer, sa.ForeignKey("user.id"))
+
+    # Track the server.
+    server_id = sa.Column(sa.Integer, sa.ForeignKey("server.id"))
+
+    # Track messages.
+    messages = relationship("Message")
+
+
+class Server(Base):
+    """
+    Represents a server.
+    """
+    __tablename__ = "server"
+
+    # Did somebody say snowflakes?
+    id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=False)
+
+    name = sa.Column(sa.String)
+
+    owner_id = sa.Column(sa.Integer, sa.ForeignKey("member.id"))
+    owner = relationship("Member", backref="server")
+
+    channels = relationship("Channel", backref="server")
+
+
 class Channel(Base):
     """
-    This isn't a real channel object - it's just used to make querying easier in links.
-
-    Maybe I'll add proper data to this Soom:tm:.
+    Represents a channel in logging and links.
     """
     __tablename__ = "channel"
 
@@ -156,10 +244,35 @@ class Channel(Base):
 
     name = sa.Column(sa.String)
 
+    messages = relationship("Message", backref="channel")
+
+    # Track the server.
+    server_id = sa.Column(sa.Integer, sa.ForeignKey("server.id"))
+
     links = relationship(
         "CommitLink",
         secondary=association_table,
         back_populates="channels")
+
+
+class Message(Base):
+    """
+    Represents a message.
+    """
+    __tablename__ = "message"
+
+    # MORE SNOWFLAKES
+    id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=False)
+
+    content = sa.Column(sa.String)
+
+    deleted = sa.Column(sa.Boolean, default=False)
+
+    # Channel link.
+    channel_id = sa.Column(sa.Integer, sa.ForeignKey("channel.id"))
+
+    # Member link.
+    member_id = sa.Column(sa.Integer, sa.ForeignKey("member.id"))
 
 
 class CommitLink(Base):
@@ -181,9 +294,3 @@ class CommitLink(Base):
         "Channel",
         secondary=association_table,
         back_populates="links")
-
-    @classmethod
-    def get_secret(cls, repo_name: str) -> 'CommitLink':
-        """
-        Get the secret
-        """
