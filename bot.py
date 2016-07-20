@@ -81,9 +81,6 @@ class Chiru(Bot):
         with open(cfg) as f:
             self.config = yaml.load(f)
 
-        if self.config.get("self_bot"):
-            self._skip_check = discord.User.__ne__
-
         if self.config.get("use_uvloop", False):
             import uvloop
             self.logger.info("Switching to uvloop.")
@@ -95,6 +92,9 @@ class Chiru(Bot):
 
         # Init now, so the loop is created here.
         super().__init__(*args, **kwargs)
+
+        if self.config.get("self_bot"):
+            self._skip_check = discord.User.__ne__
 
         self._redis = None
 
