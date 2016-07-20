@@ -6,6 +6,7 @@ import shutil
 import sys
 
 import aioredis as aioredis
+import asyncio
 import discord
 import logbook
 import logging
@@ -58,8 +59,6 @@ class Chiru(Bot):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
         self.logger = logbook.Logger("Chiru")
         self.logger.level = logbook.INFO
 
@@ -74,6 +73,8 @@ class Chiru(Bot):
         except IndexError:
             cfg = "config.yml"
 
+        self.logger.info("Loading from `{}`.".format(cfg))
+
         if not os.path.exists(cfg):
             shutil.copy("config.example.yml", cfg)
 
@@ -82,6 +83,18 @@ class Chiru(Bot):
 
         if self.config.get("self_bot"):
             self._skip_check = discord.User.__ne__
+
+        if self.config.get("use_uvloop", False):
+            import uvloop
+            self.logger.info("Switching to uvloop.")
+            policy = uvloop.EventLoopPolicy()
+            self.logger.info("Created event loop policy `{}`.".format(policy))
+            asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+        else:
+            self.logger.info("Using base selector event loop.")
+
+        # Init now, so the loop is created here.
+        super().__init__(*args, **kwargs)
 
         self._redis = None
 
@@ -127,10 +140,18 @@ class Chiru(Bot):
         password = self.config.get("redis", {}).get("password")
         db = self.config.get("redis", {}).get("db", 0)
         self.logger.info("Connecting to redis://{}:{}/{}...".format(host, port, db))
-        redis_pool = await aioredis.create_pool(
-            (host, port),
-            db=db, password=password
-        )
+        try:
+            redis_pool = await aioredis.create_pool(
+                (host, port),
+                db=db, password=password
+            )
+        except ConnectionRefusedError:
+            self.logger.error("Could not connect to redis server.")
+            self.logger.error("Exiting.")
+            await self.logout()
+            return
+        else:
+            self.logger.info("Established Redis connection.")
         self._redis = redis_pool
         self.logger.info("Connected to redis.")
 
@@ -175,7 +196,9 @@ class Chiru(Bot):
             self.logger.info("Invite link: {}".format(discord.utils.oauth_url(id)))
         except discord.Forbidden:
             pass
-        await self.get_redis()
+        redis = await self.get_redis()
+        if not redis:
+            return
 
         extensions = initial_extensions + self.config.get("autoload", [])
 
@@ -190,6 +213,7 @@ class Chiru(Bot):
 
         if not self._webserver_started:
             try:
+                self.logger.info("Starting built-in webserver.")
                 component = KyoukaiComponent(self._webserver,
                                              self.config.get("webserver", {}).get("ip", "127.0.0.1"),
                                              self.config.get("port", {}).get("port", 5555),
@@ -198,8 +222,12 @@ class Chiru(Bot):
                 await self._webserver.start(component=component)
             except OSError as e:
                 if e.errno == 98:
-                    self.logger.info("Cannot start built-in webserver; something is already listening.")
-            self._webserver_started = True
+                    self.logger.warning("Cannot start built-in webserver; something is already listening.")
+            else:
+                self.logger.info("Started webserver successfully.")
+                self._webserver_started = True
+
+        self.logger.info("Bot has loaded and is ready for processing.")
 
     def __del__(self):
         self.loop.set_exception_handler(lambda *args, **kwargs: None)
