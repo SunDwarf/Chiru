@@ -37,6 +37,8 @@ async def push(bot: Chiru, r: Request):
     """
     PUSH event.
     """
+    if len(r.form["commits"]) == 0:
+        return
     repo = r.form["repository"]["full_name"]
     # not the prettiest format
     header = "**{}:** **{}** pushed *{}* commit{} to branch **{}**" \

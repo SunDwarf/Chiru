@@ -26,7 +26,7 @@ import itsdangerous
 from logbook.compat import redirect_logging
 from logbook import StreamHandler
 
-from chiru.db import ChiruDatabase
+from chiru import db
 from override import Context
 
 # Define logging stuff.
@@ -112,7 +112,7 @@ class Chiru(Bot):
         except KeyError:
             self.http_signer = None
 
-        self.db = ChiruDatabase(self.config.get("db_url"))
+        self.db = db.ChiruDatabase(self.config.get("db_url"))
 
     @property
     def is_self_bot(self):
