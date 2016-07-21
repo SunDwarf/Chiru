@@ -3,6 +3,7 @@ Chiru's database handler.
 
 Connects the bot to a postgresql database, which transparently threadpools everything to make it async.
 """
+import datetime
 import discord
 import random
 import sqlalchemy as sa
@@ -36,7 +37,10 @@ class ChiruDatabase:
 
     @property
     def session(self) -> Session:
-        return self._session
+        try:
+            return self._session
+        except AttributeError:
+            raise Exception("Tried to run DB action on non-DB enabled bot")
 
     @threadpool
     def create_link(self, channel: discord.Channel, repo: str):
@@ -130,6 +134,46 @@ class ChiruDatabase:
         else:
             return True
 
+    async def populate_db(self, bot):
+        """
+        Actual coroutine because create_task doesn't like threadpool decorator.
+        """
+        await self._populate_db(bot)
+
+    @threadpool
+    def _populate_db(self, bot):
+        """
+        Populates the database.
+
+        This can take several years.
+        """
+        # First, create a bunch of Users.
+        # They don't depend on anything else, so we can just create a set of User.
+
+        # This results in a LOOOOT of calls to the database.
+        # We're talking on the order of 2*membercount that the ENTIRE bot sees.
+        members = set(bot.get_all_members())
+        for member in members:
+            user = self.session.query(User).filter(User.id == member.id).first()
+            if user is None:
+                # Create a new User.
+                user = User(id=member.id, created_at=member.created_at)
+                # Make an empty UsernameHistory.
+                history = UsernameChange(before=None, after=member.name,
+                                         changed_at=datetime.datetime.now())
+                user.usernames.append(history)
+            else:
+                # Get their history.
+                history = user.usernames[-1]
+                if history.after != member.name:
+                    # Make a new history and add it.
+                    nhistory = UsernameChange(before=history.after, after=member.name)
+                    user.usernames.append(nhistory)
+
+            self.session.merge(user)
+
+        self.session.commit()
+
     def __repr__(self):
         return "<ChiruDatabase connected to `{}`>".format(self.db_uri)
 
@@ -138,7 +182,7 @@ class ChiruDatabase:
 
 association_table = sa.Table(
     'channel_link', Base.metadata,
-    sa.Column('channel_id', sa.Integer, sa.ForeignKey('channel.id')),
+    sa.Column('channel_id', sa.BigInteger, sa.ForeignKey('channel.id')),
     sa.Column('link_id', sa.Integer, sa.ForeignKey('commit_link.id'))
 )
 
@@ -154,7 +198,9 @@ class UsernameChange(Base):
     before = sa.Column(sa.String)
     after = sa.Column(sa.String)
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey("user.id"))
+    changed_at = sa.Column(sa.DateTime)
+
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey("user.id"))
 
 
 class NicknameChange(Base):
@@ -168,7 +214,9 @@ class NicknameChange(Base):
     before = sa.Column(sa.String)
     after = sa.Column(sa.String)
 
-    member_id = sa.Column(sa.Integer, sa.ForeignKey("member.id"))
+    changed_at = sa.Column(sa.DateTime)
+
+    member_id = sa.Column(sa.BigInteger, sa.ForeignKey("member.id"))
 
 
 class User(Base):
@@ -207,10 +255,10 @@ class Member(Base):
     nicknames = relationship("NicknameChange", backref="member")
 
     # Track the user.
-    user_id = sa.Column(sa.Integer, sa.ForeignKey("user.id"))
+    user_id = sa.Column(sa.BigInteger, sa.ForeignKey("user.id"))
 
     # Track the server.
-    server_id = sa.Column(sa.Integer, sa.ForeignKey("server.id"))
+    server_id = sa.Column(sa.BigInteger, sa.ForeignKey("server.id"))
 
     # Track messages.
     messages = relationship("Message")
@@ -226,9 +274,6 @@ class Server(Base):
     id = sa.Column(sa.BigInteger, primary_key=True, autoincrement=False)
 
     name = sa.Column(sa.String)
-
-    owner_id = sa.Column(sa.Integer, sa.ForeignKey("member.id"))
-    owner = relationship("Member", backref="server")
 
     channels = relationship("Channel", backref="server")
 
@@ -247,7 +292,7 @@ class Channel(Base):
     messages = relationship("Message", backref="channel")
 
     # Track the server.
-    server_id = sa.Column(sa.Integer, sa.ForeignKey("server.id"))
+    server_id = sa.Column(sa.BigInteger, sa.ForeignKey("server.id"))
 
     links = relationship(
         "CommitLink",
@@ -269,10 +314,10 @@ class Message(Base):
     deleted = sa.Column(sa.Boolean, default=False)
 
     # Channel link.
-    channel_id = sa.Column(sa.Integer, sa.ForeignKey("channel.id"))
+    channel_id = sa.Column(sa.BigInteger, sa.ForeignKey("channel.id"))
 
     # Member link.
-    member_id = sa.Column(sa.Integer, sa.ForeignKey("member.id"))
+    member_id = sa.Column(sa.BigInteger, sa.ForeignKey("member.id"))
 
 
 class CommitLink(Base):
