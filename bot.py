@@ -123,7 +123,7 @@ class Chiru(Bot):
 
     async def before_request(self, r: HTTPRequestContext):
         r.request.extra["bot"] = self
-        return r.request
+        return r
 
     def register_blueprint(self, blueprint: Blueprint):
         """
