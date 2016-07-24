@@ -228,8 +228,8 @@ class Chiru(Bot):
                 self._webserver_started = True
 
         self.logger.info("Bot has loaded and is ready for processing.")
-        self.logger.info("Creating task to automatically update the DB.")
-        self.loop.create_task(self.db.populate_db(self))
+        #self.logger.info("Creating task to automatically update the DB.")
+        #self.loop.create_task(self.db.populate_db(self))
 
     def __del__(self):
         self.loop.set_exception_handler(lambda *args, **kwargs: None)
