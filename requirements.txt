@@ -16,7 +16,7 @@ Kyokai==1.5.1
 Logbook==1.0.0
 Mako==1.0.4
 MarkupSafe==0.23
-msgpack-python==0.4.7
+msgpack-python==0.4.8
 oauthlib==1.1.2
 psycopg2==2.6.2
 pycparser==2.14
