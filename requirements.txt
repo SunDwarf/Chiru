@@ -7,7 +7,7 @@ beautifulsoup4==4.5.0
 cffi==1.7.0
 chardet==2.3.0
 click==6.6
-discord.py==0.10.0
+discord.py==0.11.0
 google==1.9.1
 hiredis==0.2.0
 http-parser==0.8.3
