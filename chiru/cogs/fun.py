@@ -178,6 +178,24 @@ Mutual servers: {mut}```"""
         await self.bot.say(final_c)
 
     @commands.command(pass_context=True)
+    async def discrims(self, ctx: Context):
+        """
+        List how many discrims out of 10000 I can see.
+        """
+        can_see = {int(x.discriminator) for x in self.bot.get_all_members()}
+        base = 10000
+        num_cant_see = 0
+
+        for x in range(1, base+1):
+            if x not in can_see:
+                num_cant_see += 1
+
+        await self.bot.say("I see `{}` discriminators out of a possible `{}`, or {}%. I am missing {}.".format(
+            base - num_cant_see, base, ((base - num_cant_see) / base) * 100, num_cant_see
+        ))
+
+
+    @commands.command(pass_context=True)
     async def find(self, ctx: Context, regex: str, limit: int = 100, date: str = None):
         """
         Search the last <limit> messages for messages matching the regex <regex>, starting from <date>.
