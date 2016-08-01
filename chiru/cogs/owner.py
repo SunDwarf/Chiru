@@ -127,8 +127,18 @@ class Owner:
         """
         Run a debug command.
         """
-        result = eval(command)
-        await self.bot.say("`{}`".format(result))
+        try:
+            result = eval(command)
+        except Exception as e:
+            result = repr(e)
+
+        if self.bot.is_self_bot:
+            fmt = "```xl\nInput: {}\nOutput: {}```".format(command, result)
+            await asyncio.sleep(0.05)
+            await self.bot.edit_message(ctx.message, fmt)
+
+        else:
+            await self.bot.say("`{}`".format(result))
 
     @commands.command(pass_context=True)
     @commands.check(is_owner)

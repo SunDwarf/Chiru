@@ -183,7 +183,7 @@ Mutual servers: {mut}```"""
         List how many discrims out of 10000 I can see.
         """
         can_see = {int(x.discriminator) for x in self.bot.get_all_members()}
-        base = 10000
+        base = 9999
         num_cant_see = 0
 
         for x in range(1, base+1):
@@ -191,7 +191,7 @@ Mutual servers: {mut}```"""
                 num_cant_see += 1
 
         await self.bot.say("I see `{}` discriminators out of a possible `{}`, or {}%. I am missing {}.".format(
-            base - num_cant_see, base, ((base - num_cant_see) / base) * 100, num_cant_see
+            base - num_cant_see, base, round(((base - num_cant_see) / base) * 100, 3), num_cant_see
         ))
 
 
