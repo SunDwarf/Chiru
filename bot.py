@@ -10,6 +10,8 @@ import asyncio
 import discord
 import logbook
 import logging
+
+import time
 import yaml
 
 import traceback
@@ -113,6 +115,8 @@ class Chiru(Bot):
             self.http_signer = None
 
         self.db = db.ChiruDatabase(self.config.get("db_url"))
+
+        self.start_time = time.time()
 
     @property
     def is_self_bot(self):
@@ -227,9 +231,10 @@ class Chiru(Bot):
                 self.logger.info("Started webserver successfully.")
                 self._webserver_started = True
 
+        new_time = time.time() - self.start_time
+
+        self.logger.info("Ready in {} seconds.".format(new_time))
         self.logger.info("Bot has loaded and is ready for processing.")
-        #self.logger.info("Creating task to automatically update the DB.")
-        #self.loop.create_task(self.db.populate_db(self))
 
     def __del__(self):
         self.loop.set_exception_handler(lambda *args, **kwargs: None)
