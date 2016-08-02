@@ -2,6 +2,8 @@
 Owner-only commands.
 """
 import asyncio
+import inspect
+
 import discord
 import traceback
 from discord.ext import commands
@@ -129,6 +131,8 @@ class Owner:
         """
         try:
             result = eval(command)
+            if inspect.isawaitable(result):
+                result = await result
         except Exception as e:
             result = repr(e)
 
