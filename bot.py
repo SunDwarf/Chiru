@@ -4,6 +4,8 @@ Bot file.
 import os
 import shutil
 import sys
+import pip
+import re
 
 import aioredis as aioredis
 import asyncio
@@ -35,6 +37,8 @@ from override import Context
 redirect_logging()
 
 StreamHandler(sys.stderr).push_application()
+
+r = re.compile(r"_requirements:: (.*)?")
 
 initial_extensions = [
     #    'chiru.cogs.fun',

@@ -1,5 +1,7 @@
 """
 Intersphinx docs.
+
+_requirements:: ['sphinx', 'fuzzywuzzy']
 """
 import functools
 import json
@@ -18,7 +20,8 @@ OBJECTS = [
     "http://docs.makotemplates.org/en/latest/objects.inv",
     "http://discordpy.readthedocs.io/en/latest/objects.inv",
     "https://aiohttp.readthedocs.org/en/stable/objects.inv",
-    "http://flask.pocoo.org/docs/latest/objects.inv"
+    "http://flask.pocoo.org/docs/latest/objects.inv",
+    "http://docs.sqlalchemy.org/en/latest/objects.inv"
 ]
 
 
@@ -118,6 +121,8 @@ class Docs:
         base = "**Current sources:**\n"
         for source in OBJECTS:
             base += " - <{}>\n".format(source)
+
+        base += "\nCurrently tracking `{}` items.".format(len(self.invdata))
 
         await self.bot.say(base)
 
