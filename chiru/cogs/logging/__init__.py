@@ -79,7 +79,7 @@ class Logger:
         # Do some minor re-mapping to make the data cleaner.
         # Move the `author` attribute to the `user` attribute.
         # This is consistent with everything else.
-        if 'author' in data:
+        if 'author' in ndata:
             ndata['user'] = ndata['author']
             del ndata['author']
 
@@ -134,8 +134,10 @@ class Logger:
         Show the counter of events.
         """
         total = sum(self.counter.values())
-        await self.bot.say("I have recieved {} events since startup.".format(total))
-        await self.bot.say(repr(self.counter))
+
+        b = "I have recieved {} events since startup.\n```py\n{}```".format(total, repr(self.counter))
+
+        await self.bot.say(b)
 
 
 def setup(bot: Chiru):

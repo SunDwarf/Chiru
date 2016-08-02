@@ -54,7 +54,7 @@ def _get_command_prefix(bot: 'Chiru', message: discord.Message):
     if bot.config.get("self_bot"):
         return "self."
     elif bot.config.get("dev"):
-        return "domo arigato "
+        return "domo "
     else:
         return "chiru "
 
