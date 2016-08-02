@@ -93,7 +93,8 @@ class Logger:
                 msg_data["tts"] = ndata["tts"]
                 msg_data["type"] = ndata["type"]
 
-            del ndata["content"], ndata["id"], ndata["tts"], ndata["type"]
+                del ndata["content"], ndata["tts"], ndata["type"]
+            del ndata["id"]
             ndata["message"] = msg_data
 
         self.logger.debug("Recieved data: Event => {} OP => {}".format(event, data['op']))
