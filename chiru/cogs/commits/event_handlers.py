@@ -91,7 +91,7 @@ async def issues(bot: Chiru, r: Request):
 
     else:
         return
-        #fmt = "**{repo}:** Unknown issue event recieved: {event}".format(repo=repo, event=action)
+        # fmt = "**{repo}:** Unknown issue event recieved: {event}".format(repo=repo, event=action)
 
     for channel in await load_channels(bot, repo):
         if not channel:

@@ -161,8 +161,6 @@ class Owner:
             await self.bot.send_typing(channel)
             await asyncio.sleep(5)
 
-            
-
 
 def setup(bot: Chiru):
     bot.add_cog(Owner(bot))

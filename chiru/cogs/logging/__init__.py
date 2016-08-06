@@ -61,6 +61,10 @@ class Logger:
         # Get the event
         event = data['t']
 
+        if event == "GUILD_SYNC":
+            with open("aaa.json", 'a') as f:
+                f.write(json.dumps(data) + "\n")
+
         if event in ['GUILD_SYNC', 'MESSAGE_ACK']:
             self.logger.warning("Ignoring self-bot only messages...")
             return

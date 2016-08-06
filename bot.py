@@ -41,11 +41,7 @@ StreamHandler(sys.stderr).push_application()
 r = re.compile(r"_requirements:: (.*)?")
 
 initial_extensions = [
-    #    'chiru.cogs.fun',
     'chiru.cogs.owner',
-    #    'chiru.cogs.notifications',
-    #    'chiru.cogs.commits',
-    #    'chiru.cogs.shell',
 ]
 logging.root.setLevel(logging.INFO)
 
@@ -122,6 +118,16 @@ class Chiru(Bot):
 
         self.start_time = time.time()
 
+        # Create the rotation background task.
+        self.loop.create_task(self._rotate_game_text())
+
+    async def _rotate_game_text(self):
+        """
+        Coroutine to rotate the game text.
+        """
+
+
+
     @property
     def is_self_bot(self):
         return self.config.get("self_bot", False)
@@ -138,6 +144,8 @@ class Chiru(Bot):
         Add a blueprint to the built-in webserver.
         """
         self._webserver.register_blueprint(blueprint)
+
+    # region Redis
 
     async def _connect_redis(self):
         """
@@ -196,6 +204,8 @@ class Chiru(Bot):
             assert isinstance(conn, aioredis.Redis)
             built = "cfg:{}:{}".format(server, key)
             return await conn.set(built, value, **kwargs)
+
+    # endregion
 
     async def on_ready(self):
         self.logger.info("Loaded Chiru, logged in as `{}`.".format(self.user.name))
