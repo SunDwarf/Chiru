@@ -34,4 +34,4 @@ SQLAlchemy==1.0.14
 typeguard==1.2.1
 uvloop==0.5.0
 websockets==3.1
-youtube-dl==2016.7.22
+youtube-dl==2016.8.10
