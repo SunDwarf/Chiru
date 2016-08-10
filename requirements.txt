@@ -1,4 +1,4 @@
-aiohttp==0.21.6
+aiohttp==0.22.5
 aioredis==0.2.8
 alembic==0.8.7
 asphalt==2.0.0
