@@ -85,13 +85,15 @@ async def issues(bot: Chiru, r: Request):
                     label=r.form['label']['name'], sender=r.form["sender"])
 
     elif action == "assigned":
-        fmt = "**{repo}:** **#{issue[number]}** was assigned to **{issue[assignee][login]}**" \
+        fmt = "**{repo}:** **#{issue[number]} {issue[title]}** " \
+              "was assigned to **{issue[assignee][login]}**" \
               "\n(<{issue[html_url]}>)".format(
             repo=repo, issue=r.form["issue"]
         )
 
     elif action == "unassigned":
-        fmt = "**{repo}:** **#{issue[number]}** was unassigned from **{issue[assignee][login]}**" \
+        fmt = "**{repo}:** **#{issue[number]} {issue[title]}** " \
+              "was unassigned from **{issue[assignee][login]}**" \
               "\n(<{issue[html_url]}>)".format(
             repo=repo, issue=r.form["issue"]
         )
@@ -197,13 +199,15 @@ async def pr(bot: Chiru, r: Request):
         )
 
     elif action == "assigned":
-        fmt = "**{repo}:** **#{pull_request[number]}** was assigned to **{pull_request[assignee][login]}**" \
+        fmt = "**{repo}:** **#{pull_request[number]}** - **{pull_request[title]}** " \
+              "was assigned to **{pull_request[assignee][login]}**" \
               "\n(<{pull_request[html_url]}>)".format(
             repo=repo, pull_request=r.form["pull_request"]
         )
 
     elif action == "unassigned":
-        fmt = "**{repo}:** **#{pull_request[number]}** was unassigned from **{pull_request[assignee][login]}**" \
+        fmt = "**{repo}:** **#{pull_request[number]}** - **{pull_request[title]}** " \
+              "was unassigned from **{pull_request[assignee][login]}**" \
               "\n(<{pull_request[html_url]}>)".format(
             repo=repo, pull_request=r.form["pull_request"]
         )
