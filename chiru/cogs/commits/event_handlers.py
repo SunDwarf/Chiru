@@ -98,7 +98,7 @@ async def issues(bot: Chiru, r: Request):
             repo=repo, issue=r.form["issue"], assignee=r.form["assignee"]
         )
 
-    elif action == "unlabelled":
+    elif action == "unlabeled":
         fmt = "**{repo}:** **{sender[login]}** removed label `{label}` from issue " \
               "**#{issue[number]} {issue[title]}**" \
             .format(repo=repo, issue=r.form["issue"],
