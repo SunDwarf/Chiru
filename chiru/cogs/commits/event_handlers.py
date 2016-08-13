@@ -93,7 +93,7 @@ async def issues(bot: Chiru, r: Request):
 
     elif action == "unassigned":
         fmt = "**{repo}:** **#{issue[number]} {issue[title]}** " \
-              "was unassigned from **{assignee[login}**" \
+              "was unassigned from **{assignee[login]}**" \
               "\n(<{issue[html_url]}>)".format(
             repo=repo, issue=r.form["issue"], assignee=r.form["assignee"]
         )
