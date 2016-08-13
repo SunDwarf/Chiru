@@ -175,7 +175,7 @@ async def pr(bot: Chiru, r: Request):
               "**#{pull_request[number]}** - **{pull_request[title]}**" \
               "\n(<{pull_request[html_url]}>)".format(
             repo=repo, pull_request=r.form["pull_request"],
-            sender=r.form["sender"]["user"]
+            sender=r.form["sender"]["login"]
         )
 
     else:
