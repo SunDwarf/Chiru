@@ -87,13 +87,13 @@ async def issues(bot: Chiru, r: Request):
     elif action == "assigned":
         fmt = "**{repo}:** **#{issue[number]}** was assigned to **pull_request[assignee][login]**" \
               "\n(<{issue[html_url]}>)".format(
-            repo=repo, issue=r.form["pull_request"]
+            repo=repo, issue=r.form["issue"]
         )
 
     elif action == "unassigned":
         fmt = "**{repo}:** **#{issue[number]}** was unassigned from **pull_request[assignee][login]**" \
               "\n(<{issue[html_url]}>)".format(
-            repo=repo, issue=r.form["pull_request"]
+            repo=repo, issue=r.form["issue"]
         )
 
     elif action == "unlabelled":
