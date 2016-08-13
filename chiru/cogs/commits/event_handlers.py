@@ -79,10 +79,28 @@ async def issues(bot: Chiru, r: Request):
             .format(repo=repo, issue=r.form["issue"], sender=r.form["sender"])
 
     elif action == "labeled":
-        fmt = "**{repo}:** **{sender[login]}** added labels `{labels}` to issue " \
+        fmt = "**{repo}:** **{sender[login]}** added label `{label}` to issue " \
               "**#{issue[number]} {issue[title]}**" \
             .format(repo=repo, issue=r.form["issue"],
-                    labels=' '.join("[" + l["name"] + "]" for l in r.form["issue"]["labels"]), sender=r.form["sender"])
+                    label=r.form['label']['name'], sender=r.form["sender"])
+
+    elif action == "assigned":
+        fmt = "**{repo}:** **#{issue[number]}** was assigned to **pull_request[assignee][login]**" \
+              "\n(<{issue[html_url]}>)".format(
+            repo=repo, issue=r.form["pull_request"]
+        )
+
+    elif action == "unassigned":
+        fmt = "**{repo}:** **#{issue[number]}** was unassigned from **pull_request[assignee][login]**" \
+              "\n(<{issue[html_url]}>)".format(
+            repo=repo, issue=r.form["pull_request"]
+        )
+
+    elif action == "unlabelled":
+        fmt = "**{repo}:** **{sender[login]}** removed label `{label}` from issue " \
+              "**#{issue[number]} {issue[title]}**" \
+            .format(repo=repo, issue=r.form["issue"],
+                    label=r.form['label']['name'], sender=r.form["sender"])
 
     elif action == "reopened":
         fmt = "**{repo}:** **{sender[login]}** re-opened issue " \
@@ -177,6 +195,30 @@ async def pr(bot: Chiru, r: Request):
             repo=repo, pull_request=r.form["pull_request"],
             sender=r.form["sender"]["login"]
         )
+
+    elif action == "assigned":
+        fmt = "**{repo}:** **#{pull_request[number]}** was assigned to **pull_request[assignee][login]**" \
+              "\n(<{pull_request[html_url]}>)".format(
+            repo=repo, pull_request=r.form["pull_request"]
+        )
+
+    elif action == "unassigned":
+        fmt = "**{repo}:** **#{pull_request[number]}** was unassigned from **pull_request[assignee][login]**" \
+              "\n(<{pull_request[html_url]}>)".format(
+            repo=repo, pull_request=r.form["pull_request"]
+        )
+
+    elif action == "labeled":
+        fmt = "**{repo}:** **{sender[login]}** added label `{label}` to pull request " \
+              "**#{pull_request[number]}** - **{pull_request[title]}**" \
+            .format(repo=repo, pull_request=r.form["pull_request"],
+                    label=r.form['label']['name'], sender=r.form["sender"])
+
+    elif action == "labeled":
+        fmt = "**{repo}:** **{sender[login]}** removed label `{label}` from pull request " \
+              "**#{pull_request[number]}** - **{pull_request[title]}**" \
+            .format(repo=repo, pull_request=r.form["pull_request"],
+                    label=r.form['label']['name'], sender=r.form["sender"])
 
     else:
         return
