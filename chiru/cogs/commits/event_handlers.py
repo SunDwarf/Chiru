@@ -93,9 +93,9 @@ async def issues(bot: Chiru, r: Request):
 
     elif action == "unassigned":
         fmt = "**{repo}:** **#{issue[number]} {issue[title]}** " \
-              "was unassigned from **{issue[assignee][login]}**" \
+              "was unassigned from **{assignee[login}**" \
               "\n(<{issue[html_url]}>)".format(
-            repo=repo, issue=r.form["issue"]
+            repo=repo, issue=r.form["issue"], assignee=r.form["assignee"]
         )
 
     elif action == "unlabelled":
@@ -207,9 +207,10 @@ async def pr(bot: Chiru, r: Request):
 
     elif action == "unassigned":
         fmt = "**{repo}:** **#{pull_request[number]}** - **{pull_request[title]}** " \
-              "was unassigned from **{pull_request[assignee][login]}**" \
+              "was unassigned from **{assignee[login]}**" \
               "\n(<{pull_request[html_url]}>)".format(
-            repo=repo, pull_request=r.form["pull_request"]
+            repo=repo, pull_request=r.form["pull_request"],
+            assignee=r.form["assignee"]
         )
 
     elif action == "labeled":
