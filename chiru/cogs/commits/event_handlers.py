@@ -171,7 +171,7 @@ async def pr(bot: Chiru, r: Request):
         )
 
     elif action == "synchronize":
-        fmt = "**{repo}: **{sender}** updated pull request " \
+        fmt = "**{repo}**: **{sender}** updated pull request " \
               "**#{pull_request[number]}** - **{pull_request[title]}**" \
               "\n(<{pull_request[html_url]}>)".format(
             repo=repo, pull_request=r.form["pull_request"],
