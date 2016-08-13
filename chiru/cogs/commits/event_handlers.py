@@ -170,6 +170,14 @@ async def pr(bot: Chiru, r: Request):
             status="merged" if r.form["pull_request"]["merged"] else "closed"
         )
 
+    elif action == "synchronize":
+        fmt = "**{repo}: **{sender}** updated pull request " \
+              "**#{pull_request[number]}** - **{pull_request[title]}**" \
+              "\n(<{pull_request[html_url]}>)".format(
+            repo=repo, pull_request=r.form["pull_request"],
+            sender=r.form["sender"]["user"]
+        )
+
     else:
         return
 

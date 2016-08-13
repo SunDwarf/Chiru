@@ -28,5 +28,6 @@ class SelfBot(object):
         for chunk in chunked:
             await self.bot.say(chunk)
 
+
 def setup(bot: Chiru):
     bot.add_cog(SelfBot(bot))
