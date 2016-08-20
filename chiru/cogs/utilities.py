@@ -1,6 +1,7 @@
 """
 Utilities cog.
 """
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -33,6 +34,24 @@ class Utilities:
                 counter += 1
 
         await self.bot.say("`{}`".format(counter))
+
+    @commands.command(pass_context=True)
+    @commands.has_permissions(manage_nicknames=True)
+    @commands.bot_has_permissions(manage_nicknames=True)
+    async def resetnames(self, ctx: Context):
+        """
+        Resets the nicknames of all members on a server (if possible).
+        """
+        futures = []
+        for member in ctx.server.members:
+            if member.top_role.position < ctx.server.me.top_role.position:
+                futures.append(self.bot.change_nickname(member, None))
+
+        results = await asyncio.gather(*futures, return_exceptions=True)
+
+        changed = sum(1 for _ in results if not isinstance(_, Exception))
+
+        await self.bot.say("Changed `{}` nicknames.".format(changed))
 
 
 def setup(bot: Chiru):
