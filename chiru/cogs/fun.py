@@ -40,20 +40,21 @@ class Fun(object):
         )
 
     @commands.command(pass_context=True)
-    async def servers(self, ctx: Context):
+    async def servers(self, ctx: Context, max_servers: int = 5):
         """
         Show the biggest servers.
         """
         servers = [s for s in self.bot.servers]
         servers = sorted(servers, key=lambda x: x.member_count, reverse=True)
-        fmt = """**Top servers**:
 
-**1.** `{0.name}` -> `{0.member_count}` members
-**2.** `{1.name}` -> `{1.member_count}` members
-**3.** `{2.name}` -> `{2.member_count}` members
-**4.** `{3.name}` -> `{3.member_count}` members
-**5.** `{4.name}` -> `{4.member_count}` members
-""".format(*servers[0:6])
+        fmt = "**Top servers**:\n"
+
+        for x in range(0, max_servers):
+            if x >= len(servers):
+                break
+
+            fmt += "**{0}.** `{1.name}` -> `{1.member_count}` members\n".format(x + 1, servers[x])
+
         await self.bot.say(fmt)
 
     @commands.command(pass_context=True)
@@ -186,14 +187,13 @@ Mutual servers: {mut}```"""
         base = 9999
         num_cant_see = 0
 
-        for x in range(1, base+1):
+        for x in range(1, base + 1):
             if x not in can_see:
                 num_cant_see += 1
 
         await self.bot.say("I see `{}` discriminators out of a possible `{}`, or {}%. I am missing {}.".format(
             base - num_cant_see, base, round(((base - num_cant_see) / base) * 100, 3), num_cant_see
         ))
-
 
     @commands.command(pass_context=True)
     async def find(self, ctx: Context, regex: str, limit: int = 100, date: str = None):
