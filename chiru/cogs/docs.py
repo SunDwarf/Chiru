@@ -22,7 +22,7 @@ OBJECTS = [
     "https://aiohttp.readthedocs.org/en/stable/objects.inv",
     "http://flask.pocoo.org/docs/latest/objects.inv",
     "http://docs.sqlalchemy.org/en/latest/objects.inv",
-    "http://mirai.veriny.tf/objects.inv"
+    "http://mirai.veriny.tf/en/latest/objects.inv"
 ]
 
 
