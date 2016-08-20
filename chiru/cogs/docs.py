@@ -47,7 +47,8 @@ class Docs:
         Download objects.inv.
         """
         invdata = {}
-        for obb in self.bot.config.get("docs", []):
+        for name, obb in self.bot.config.get("docs", {}).items():
+            self.bot.logger.info("Fetching Pydocs for {}...".format(name))
             _data = await self.bot.loop.run_in_executor(
                 None, functools.partial(intersphinx.fetch_inventory, self._app, '', obb)
             )
@@ -56,15 +57,18 @@ class Docs:
                 self.bot.logger.error("Failed to download Pydoc source {}".format(obb))
                 continue
 
-            self._item_lengths[obb] = 0
+            # Set the invdata of the current pydoc library
+            invdata[name] = {}
+
+            self._item_lengths[name] = 0
 
             for kx, value in _data.items():
                 if kx.startswith("std"):
                     # Ignore these, they're sphinx directives.
                     continue
                 for key, subvals in value.items():
-                    self._item_lengths[obb] += 1
-                    invdata[key] = subvals
+                    self._item_lengths[name] += 1
+                    invdata[name][key] = subvals
 
         self.invdata = invdata
 
@@ -75,7 +79,13 @@ class Docs:
 
         This does a *fuzzy* search of the item requested.
         """
-        f = functools.partial(process.extractOne, node, self.invdata.keys())
+        # TODO: Not make this use up memory like a hog
+        # Create the list of items to search through.
+        items = []
+        for i in self.invdata.values():
+            # Fuck up memory
+            items += list(i)
+        f = functools.partial(process.extractOne, node, items)
         item = await self.bot.loop.run_in_executor(None, f)
         if not item:
             await self.bot.say(":x: No results found.")
@@ -84,7 +94,14 @@ class Docs:
         key, score = item
 
         # Get the key that was returned by the fuzzy search.
-        data = self.invdata[key]
+        data = ["??", "??", "??"]
+        for name, v in self.invdata.items():
+            try:
+                data = v[key]
+            except KeyError:
+                continue
+            else:
+                break
 
         doc, ver, url = data[0:3]
         await self.bot.say("`{}` in {} {} - <{}> (returned with score {})".format(key, doc, ver, url, score))
@@ -96,8 +113,13 @@ class Docs:
 
         Limit defines the number of items you wish to return (up to 10).
         """
+        items = []
+        for i in self.invdata.values():
+            # Fuck up memory
+            items += list(i)
+
         limit = min(10, limit)
-        f = functools.partial(process.extractBests, node, self.invdata.keys(), limit=limit)
+        f = functools.partial(process.extractBests, node, items, limit=limit)
         item = await self.bot.loop.run_in_executor(None, f)
         if not item:
             await self.bot.say(":x: No results found.")
@@ -109,7 +131,14 @@ class Docs:
             key, score = result
 
             # Get the key that was returned by the fuzzy search.
-            data = self.invdata[key]
+            data = ["??", "??", "??"]
+            for name, v in self.invdata.items():
+                try:
+                    data = v[key]
+                except KeyError:
+                    continue
+                else:
+                    break
 
             doc, ver, url = data[0:3]
             base += "`{}` in {} {} - <{}> (returned with score {})\n".format(key, doc, ver, url, score)
@@ -117,17 +146,23 @@ class Docs:
         await self.bot.say(base)
 
     @pydoc.command(pass_context=True)
-    async def exact(self, ctx, *, node: str):
+    async def module(self, ctx, module: str, *, node: str):
         """
-        Does an exact search of the pydoc command specified.
+        Fetches a pydoc from a specified module and node.
         """
-        data = self.invdata.get(node)
-        if not data:
-            await self.bot.say(":x: Could not find node with that name.")
+        items = self.invdata.get(module.lower(), {})
+        f = functools.partial(process.extractOne, node, items)
+        item = await self.bot.loop.run_in_executor(None, f)
+
+        if not item:
+            await self.bot.say(":x: No results found.")
             return
 
+        data, score, key = item
+
         doc, ver, url = data[0:3]
-        await self.bot.say("`{}` in {} {} - <{}>".format(node, doc, ver, url))
+
+        await self.bot.say("`{}` in {} {} - <{}> (returned with score {})".format(key, doc, ver, url, score))
 
     @pydoc.command(pass_context=True)
     @commands.check(checks.is_owner)
