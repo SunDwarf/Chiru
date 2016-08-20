@@ -15,16 +15,6 @@ from fuzzywuzzy import process
 from bot import Chiru
 from chiru import checks
 
-OBJECTS = [
-    "https://docs.python.org/3/objects.inv",
-    "http://docs.makotemplates.org/en/latest/objects.inv",
-    "http://discordpy.readthedocs.io/en/latest/objects.inv",
-    "https://aiohttp.readthedocs.org/en/stable/objects.inv",
-    "http://flask.pocoo.org/docs/latest/objects.inv",
-    "http://docs.sqlalchemy.org/en/latest/objects.inv",
-    "http://mirai.veriny.tf/en/latest/objects.inv"
-]
-
 
 class MockSphinxApp:
     """
@@ -50,21 +40,30 @@ class Docs:
 
         self.invdata = {}
 
+        self._item_lengths = {}
+
     async def setup(self):
         """
         Download objects.inv.
         """
         invdata = {}
-        for obb in OBJECTS:
+        for obb in self.bot.config.get("docs", []):
             _data = await self.bot.loop.run_in_executor(
                 None, functools.partial(intersphinx.fetch_inventory, self._app, '', obb)
             )
+
+            if _data is None:
+                self.bot.logger.error("Failed to download Pydoc source {}".format(obb))
+                continue
+
+            self._item_lengths[obb] = 0
 
             for kx, value in _data.items():
                 if kx.startswith("std"):
                     # Ignore these, they're sphinx directives.
                     continue
                 for key, subvals in value.items():
+                    self._item_lengths[obb] += 1
                     invdata[key] = subvals
 
         self.invdata = invdata
@@ -76,7 +75,7 @@ class Docs:
 
         This does a *fuzzy* search of the item requested.
         """
-        f = functools.partial(process.extractOne, node, self.invdata.keys(), scorer=QRatio)
+        f = functools.partial(process.extractOne, node, self.invdata.keys())
         item = await self.bot.loop.run_in_executor(None, f)
         if not item:
             await self.bot.say(":x: No results found.")
@@ -89,6 +88,33 @@ class Docs:
 
         doc, ver, url = data[0:3]
         await self.bot.say("`{}` in {} {} - <{}> (returned with score {})".format(key, doc, ver, url, score))
+
+    @pydoc.command(pass_context=True)
+    async def multi(self, ctx, limit: int, *, node: str):
+        """
+        Looks up the fuzzy pydoc of a specified item.
+
+        Limit defines the number of items you wish to return (up to 10).
+        """
+        limit = min(10, limit)
+        f = functools.partial(process.extractBests, node, self.invdata.keys(), limit=limit)
+        item = await self.bot.loop.run_in_executor(None, f)
+        if not item:
+            await self.bot.say(":x: No results found.")
+            return
+
+        base = "**Pydoc results:**\n"
+
+        for result in item:
+            key, score = result
+
+            # Get the key that was returned by the fuzzy search.
+            data = self.invdata[key]
+
+            doc, ver, url = data[0:3]
+            base += "`{}` in {} {} - <{}> (returned with score {})\n".format(key, doc, ver, url, score)
+
+        await self.bot.say(base)
 
     @pydoc.command(pass_context=True)
     async def exact(self, ctx, *, node: str):
@@ -120,8 +146,14 @@ class Docs:
         Lists the sources that pydoc retrieves from.
         """
         base = "**Current sources:**\n"
-        for source in OBJECTS:
-            base += " - <{}>\n".format(source)
+        for source in self.bot.config.get("docs", []):
+            try:
+                base += " - <{}> (`{}` items)\n".format(source, self._item_lengths[source])
+            except KeyError:
+                continue
+
+        base += "\nTracking `{}` out of `{}` valid sources.".format(len(self.bot.config.get("docs", [])),
+                                                                    len(self._item_lengths))
 
         base += "\nCurrently tracking `{}` items.".format(len(self.invdata))
 
