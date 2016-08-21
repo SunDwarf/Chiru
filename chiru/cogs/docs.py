@@ -79,13 +79,12 @@ class Docs:
 
         This does a *fuzzy* search of the item requested.
         """
-        # TODO: Not make this use up memory like a hog
-        # Create the list of items to search through.
-        items = []
-        for i in self.invdata.values():
-            # Fuck up memory
-            items += list(i)
-        f = functools.partial(process.extractOne, node, items)
+        def _get_items():
+            for v in self.invdata.values():
+                for subv in v:
+                    yield subv
+
+        f = functools.partial(process.extractOne, node, _get_items())
         item = await self.bot.loop.run_in_executor(None, f)
         if not item:
             await self.bot.say(":x: No results found.")
@@ -113,13 +112,13 @@ class Docs:
 
         Limit defines the number of items you wish to return (up to 10).
         """
-        items = []
-        for i in self.invdata.values():
-            # Fuck up memory
-            items += list(i)
+        def _get_items():
+            for v in self.invdata.values():
+                for subv in v:
+                    yield subv
 
         limit = min(10, limit)
-        f = functools.partial(process.extractBests, node, items, limit=limit)
+        f = functools.partial(process.extractBests, node, _get_items(), limit=limit)
         item = await self.bot.loop.run_in_executor(None, f)
         if not item:
             await self.bot.say(":x: No results found.")
