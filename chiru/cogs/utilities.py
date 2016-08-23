@@ -2,7 +2,10 @@
 Utilities cog.
 """
 import asyncio
+
+import datetime
 import discord
+import time
 from discord.ext import commands
 
 from bot import Chiru
@@ -59,6 +62,19 @@ class Utilities:
         changed = sum(1 for _ in results if not isinstance(_, Exception))
 
         await self.bot.say("Changed `{}` nicknames.".format(changed))
+
+    @commands.command(pass_context=True)
+    async def uptime(self, ctx: Context):
+        """
+        Shows the bot's uptime.
+        """
+        uptime = time.time() - self.bot.start_time
+
+        m, s = divmod(uptime, 60)
+        h, m = divmod(m, 60)
+        formatted = "%d:%02d:%02d" % (h, m, s)
+
+        await self.bot.say("Bot has been running for `{}`.".format(formatted))
 
 
 def setup(bot: Chiru):
