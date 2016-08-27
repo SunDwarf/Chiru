@@ -28,6 +28,20 @@ class SelfBot(object):
         for chunk in chunked:
             await self.bot.say(chunk)
 
+    @commands.command(pass_context=True)
+    async def nukeinvs(self, ctx: Context):
+        """
+        Nukes the messages for a user.
+        """
+        count = 0
+        async for message in self.bot.logs_from(ctx.channel):
+            if 'discord.gg' in message.content:
+                count += 1
+                await self.bot.delete_message(message)
+
+        await self.bot.say("Deleted {} messages".format(count))
+
+
 
 def setup(bot: Chiru):
     bot.add_cog(SelfBot(bot))
