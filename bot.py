@@ -14,6 +14,8 @@ import logbook
 import logging
 
 import time
+
+import random
 import yaml
 
 import traceback
@@ -125,8 +127,11 @@ class Chiru(Bot):
         """
         Coroutine to rotate the game text.
         """
-
-
+        await self.wait_until_ready()
+        texts = self.config.get("game_texts", [])
+        while True:
+            await self.change_status(game=discord.Game(name=random.choice(texts)))
+            await asyncio.sleep(15)
 
     @property
     def is_self_bot(self):

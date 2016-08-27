@@ -42,6 +42,5 @@ class SelfBot(object):
         await self.bot.say("Deleted {} messages".format(count))
 
 
-
 def setup(bot: Chiru):
     bot.add_cog(SelfBot(bot))
