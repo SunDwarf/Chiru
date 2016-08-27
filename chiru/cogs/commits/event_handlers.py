@@ -126,7 +126,7 @@ async def star(bot: Chiru, r: Request):
     repo = r.form["repository"]["full_name"]
     sender = r.form["sender"]
 
-    fmt = "**{repo}:** **{sender[login]}** starred this repo!".format(repo=repo, sender=sender)
+    fmt = ":star: **{repo}:** **{sender[login]}** starred this repo!".format(repo=repo, sender=sender)
 
     for channel in await load_channels(bot, repo):
         if not channel:
