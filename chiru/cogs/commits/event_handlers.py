@@ -178,7 +178,7 @@ async def status(bot: Chiru, r: Request):
 
     if state == "pending":
         fmt = "**{repo}:** **{form[sender][login]}** has started a build:" \
-              "\n{form[description]}\n<{form[target_url}>".format(
+              "\n{form[description]}\n<{form[target_url]}>".format(
             repo=repo, form=r.form
         )
     elif state == "failure":
