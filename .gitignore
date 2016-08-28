@@ -138,6 +138,7 @@ ENV/
 chiru/cogs/repl.py
 config.yml
 selfbot.yml
+selfbot2.yml
 
 images/
 volumes/
