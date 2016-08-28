@@ -169,6 +169,37 @@ async def fork(bot: Chiru, r: Request):
 
         await bot.send_message(channel, fmt)
 
+async def status(bot: Chiru, r: Request):
+    # Build statuses
+    repo = r.form["repository"]["full_name"]
+
+    # Load the state.
+    state = r.form["state"]
+
+    if state == "pending":
+        fmt = "**{repo}:** **{form[sender][login]}** has started a build:" \
+              "\n{form[description]}\n<{form[target_url}>".format(
+            repo=repo, form=r.form
+        )
+    elif state == "failure":
+        fmt = "🚫 **{repo}:** A build triggered by **{form[sender][login]}** has **failed** :(" \
+              "\n<{form[target_url]}>".format(
+            repo=repo, form=r.form
+        )
+    elif state == "success":
+        fmt = "🎉 **{repo}:** A build triggered by **{form[sender][login]}** has **succeeded**" \
+              "\n<{form[target_url]}>".format(
+            repo=repo, form=r.form
+        )
+    else:
+        fmt = "**{repo}:** A build entered an unknown state (`{state}`).".format(repo=repo, state=state)
+
+    for channel in await load_channels(bot, repo):
+        if not channel:
+            continue
+
+        await bot.send_message(channel, fmt)
+
 
 async def pr(bot: Chiru, r: Request):
     # Pull requests
@@ -243,5 +274,6 @@ handlers = {
     "watch": star,
     "commit_comment": commit_comment,
     "fork": fork,
-    "pull_request": pr
+    "pull_request": pr,
+    "status": status
 }

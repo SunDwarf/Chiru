@@ -1,6 +1,7 @@
 """
 Self-bot related stuff.
 """
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -40,6 +41,15 @@ class SelfBot(object):
                 await self.bot.delete_message(message)
 
         await self.bot.say("Deleted {} messages".format(count))
+
+    @commands.command(pass_context=True)
+    async def creepylog(self, ctx: Context):
+        base_msg = await self.bot.say("creepy log bot!")
+        while True:
+            await self.bot.edit_message(base_msg, "Creepy log bot!")
+            await asyncio.sleep(1)
+            await self.bot.edit_message(base_msg, "Creepy Log Bot!")
+            await asyncio.sleep(1)
 
 
 def setup(bot: Chiru):

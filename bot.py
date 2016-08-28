@@ -299,7 +299,7 @@ class Chiru(Bot):
 
     async def send_message(self, destination, content, *, tts=False):
         content = "\u200b{}".format(content)
-        await super().send_message(destination, content, tts=tts)
+        return await super().send_message(destination, content, tts=tts)
 
     async def process_commands(self, message):
         """
