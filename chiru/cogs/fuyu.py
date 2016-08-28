@@ -31,6 +31,14 @@ class Fuyu:
     def __check(self, ctx: Context):
         return ctx.server.id == "198101180180594688"
 
+    async def on_member_join(self, member: discord.Member):
+        if member.server.id != "198101180180594688":
+            return
+
+        if member.bot:
+            role = discord.utils.get(member.server.roles, name="Bots")
+            await self.bot.add_roles(member, role)
+
     @commands.command(pass_context=True)
     @commands.check(checks.is_owner)
     async def abuselottery(self, ctx: Context, *roles: discord.Role):
