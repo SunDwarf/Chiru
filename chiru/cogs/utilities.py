@@ -20,6 +20,19 @@ class Utilities:
     def __init__(self, bot: Chiru):
         self.bot = bot
 
+    @commands.group(pass_context=True)
+    async def getperms(self, ctx: Context, *, number: int):
+        """
+        Gets the permissions of a permissions number.
+        """
+        perms = discord.Permissions(number)
+        fmt = "```http\n"
+        for name, perm in perms:
+            fmt += "{}: {}\n".format(name.replace("_", " ").capitalize(), perm)
+
+        fmt += "```"
+        await self.bot.say(fmt)
+
     @commands.command(pass_context=True)
     async def getroleid(self, ctx: Context, role: discord.Role):
         """
