@@ -18,6 +18,10 @@ from override import Context
 AUTHORIZATION_URL = "https://discordapp.com/api/v6/oauth2/authorize"
 
 
+def fuyu_check(ctx: Context):
+    return ctx.server.id == "198101180180594688"
+
+
 class Fuyu:
     """
     Utilities for my server.
@@ -27,9 +31,6 @@ class Fuyu:
 
     def __init__(self, bot: Chiru):
         self.bot = bot
-
-    def __check(self, ctx: Context):
-        return ctx.server.id == "198101180180594688"
 
     async def on_member_join(self, member: discord.Member):
         if member.server.id != "198101180180594688":
@@ -58,6 +59,7 @@ class Fuyu:
         await self.bot.say("{} has got the abuse role! Hooray!".format(chosen.mention))
 
     @commands.command(pass_context=True)
+    @commands.check(fuyu_check)
     async def addbot(self, ctx: Context, client_id: int):
         """
         Adds a bot to my server.

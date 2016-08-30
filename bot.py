@@ -4,7 +4,6 @@ Bot file.
 import os
 import shutil
 import sys
-import pip
 import re
 
 import aioredis as aioredis
@@ -21,7 +20,7 @@ import yaml
 import traceback
 
 from discord.ext import commands
-from discord.ext.commands import Bot, CommandError, CommandNotFound
+from discord.ext.commands import Bot, CommandNotFound
 from discord.ext.commands.view import StringView
 from kyokai import Kyokai
 from kyokai.asphalt import KyoukaiComponent
@@ -50,7 +49,7 @@ logging.root.setLevel(logging.INFO)
 
 def _get_command_prefix(bot: 'Chiru', message: discord.Message):
     if bot.config.get("self_bot"):
-        return "self."
+        return "domo "
     elif bot.config.get("dev"):
         return "domo "
     else:
