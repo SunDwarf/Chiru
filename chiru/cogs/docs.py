@@ -84,7 +84,7 @@ class Docs:
                 for subv in v:
                     yield subv
 
-        f = functools.partial(process.extractOne, node, _get_items())
+        f = functools.partial(process.extractOne, node, _get_items(), scorer=QRatio)
         item = await self.bot.loop.run_in_executor(None, f)
         if not item:
             await self.bot.say(":x: No results found.")
@@ -118,7 +118,7 @@ class Docs:
                     yield subv
 
         limit = min(10, limit)
-        f = functools.partial(process.extractBests, node, _get_items(), limit=limit)
+        f = functools.partial(process.extractBests, node, _get_items(), limit=limit, scorer=QRatio)
         item = await self.bot.loop.run_in_executor(None, f)
         if not item:
             await self.bot.say(":x: No results found.")

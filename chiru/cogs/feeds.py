@@ -85,7 +85,6 @@ class API:
         the `sub` command (and opt-out by doing the `unsub` command).
         You can publish to a feed by using the `publish` command.
         """
-        channel = ctx.message.channel
         server = ctx.server
         feeds = self.feeds.get(server.id, {})
         if len(feeds) == 0:
