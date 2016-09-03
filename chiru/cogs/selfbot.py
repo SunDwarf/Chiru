@@ -3,6 +3,7 @@ Self-bot related stuff.
 """
 import asyncio
 import discord
+import random
 from discord.ext import commands
 
 from bot import Chiru
@@ -13,6 +14,15 @@ from override import Context
 class SelfBot(object):
     def __init__(self, bot: Chiru):
         self.bot = bot
+
+    async def on_message(self, message: discord.Message):
+        if message.server.id != "175856762677624832":
+            return
+
+        if message.server.me.mention in message.content:
+            if random.choice([0, 2, 3]) == 3:
+                msg = "".join(random.choice([k.upper(), k]) for k in "dontfuckingmentionme")
+                await self.bot.send_message(message.channel, msg)
 
     @commands.command(pass_context=True, names=["93591378994397184"])
     async def _93591378994397184(self, ctx):
