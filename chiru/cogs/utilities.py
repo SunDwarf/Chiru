@@ -20,6 +20,13 @@ class Utilities:
     def __init__(self, bot: Chiru):
         self.bot = bot
 
+    @commands.command(pass_context=True)
+    async def joinedat(self, ctx: Context, *, target: discord.Member):
+        """
+        Shows when the user joined.
+        """
+        await self.bot.say("{} joined this server at: `{}`.".format(target.name, target.joined_at))
+
     @commands.group(pass_context=True)
     async def getperms(self, ctx: Context, *, number: int):
         """
