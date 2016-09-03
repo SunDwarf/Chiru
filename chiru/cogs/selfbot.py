@@ -20,7 +20,7 @@ class SelfBot(object):
             return
 
         if message.server.me.mention in message.content:
-            if random.choice([0, 2]) == 2:
+            if random.choice([0, 1, 2]) == 2:
                 msg = "".join(random.choice([k.upper(), k]) for k in "dontfuckingmentionme")
                 await self.bot.send_message(message.channel, msg)
 
