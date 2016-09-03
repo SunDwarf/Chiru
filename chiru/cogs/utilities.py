@@ -41,23 +41,17 @@ class Utilities:
         await self.bot.say(fmt)
 
     @commands.command(pass_context=True)
-    async def getroleid(self, ctx: Context, role: discord.Role):
+    async def getroleid(self, ctx: Context, *, role: discord.Role):
         """
         Gets the role ID associated with the role specified.
         """
         await self.bot.say("`{}`".format(role.id))
 
     @commands.command(pass_context=True)
-    async def rolecount(self, ctx: Context, *, rolename: str):
+    async def rolecount(self, ctx: Context, *, role: discord.Role):
         """
         Returns the number of people in a specified role.
         """
-        role = None
-        for r in ctx.server.roles:
-            if r.name.lower() == rolename.lower():
-                role = r
-                break
-
         counter = 0
         for member in ctx.server.members:
             if role in member.roles:
