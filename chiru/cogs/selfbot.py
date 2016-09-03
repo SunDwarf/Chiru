@@ -16,7 +16,7 @@ class SelfBot(object):
         self.bot = bot
 
     async def on_message(self, message: discord.Message):
-        if message.server and message.server.id != "175856762677624832":
+        if not message.server or message.server.id != "175856762677624832":
             return
 
         if message.server.me.mention in message.content:
