@@ -176,6 +176,9 @@ Mutual servers: {mut}```"""
             # Add 65248 to the ord() value to get the fullwidth counterpart.
             final_c += chr(ord(char) + 65248)
 
+        if self.bot.is_self_bot:
+            await self.bot.delete_message(ctx.message)
+
         await self.bot.say(final_c)
 
     @commands.command(pass_context=True)
