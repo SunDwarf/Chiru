@@ -21,8 +21,7 @@ class SelfBot(object):
 
         if message.server.me.mention in message.content:
             if random.choice([0, 1, 2]) == 2:
-                msg = "".join(random.choice([k.upper(), k]) for k in "dontfuckingmentionme")
-                await self.bot.send_message(message.channel, msg)
+                await self.bot.send_message(message.channel, "Please don't mention me.")
 
     @commands.command(pass_context=True, names=["93591378994397184"])
     async def _93591378994397184(self, ctx):
