@@ -25,7 +25,7 @@ class SelfBot(object):
         if self._dont_mention_me is False:
             return
 
-        if not message.server or message.server.id != "198101180180594688":
+        if not message.server or message.server.id != "175856762677624832":
             return
 
         if message.author.id == "174701939580207105":
