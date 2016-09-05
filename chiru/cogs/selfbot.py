@@ -4,6 +4,8 @@ Self-bot related stuff.
 import asyncio
 import discord
 import random
+
+import time
 from discord.ext import commands
 
 from bot import Chiru
@@ -17,6 +19,8 @@ class SelfBot(object):
 
         self._dont_mention_me = True
 
+        self._last_mention = 0
+
     async def on_message(self, message: discord.Message):
         if self._dont_mention_me is False:
             return
@@ -28,6 +32,9 @@ class SelfBot(object):
             return
 
         if message.server.me.mention in message.content:
+            if self._last_mention > time.time() - 5:
+                return
+            self._last_mention = time.time()
             await self.bot.send_message(message.channel, "Why do you feel the need to do this")
 
     @commands.command()
