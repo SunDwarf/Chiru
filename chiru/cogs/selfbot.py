@@ -15,13 +15,30 @@ class SelfBot(object):
     def __init__(self, bot: Chiru):
         self.bot = bot
 
+        self._dont_mention_me = True
+
     async def on_message(self, message: discord.Message):
-        if not message.server or message.server.id != "175856762677624832":
+        if self._dont_mention_me is False:
+            return
+
+        if not message.server or message.server.id != "198101180180594688":
+            return
+
+        if message.author.id == "174701939580207105":
             return
 
         if message.server.me.mention in message.content:
-            if random.choice([0, 1, 2]) == 2:
-                await self.bot.send_message(message.channel, "Please don't mention me.")
+            await self.bot.send_message(message.channel, "Why do you feel the need to do this")
+
+    @commands.command()
+    async def dontfuckingmentionme(self):
+        self._dont_mention_me = not self._dont_mention_me
+        if self._dont_mention_me:
+            msg = "DoNTFucKingMEntIonmE"
+        else:
+            msg = "FUckIngMEntIonMe"
+
+        await self.bot.say(msg)
 
     @commands.command(pass_context=True, names=["93591378994397184"])
     async def _93591378994397184(self, ctx):
