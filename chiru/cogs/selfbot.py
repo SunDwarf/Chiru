@@ -2,6 +2,9 @@
 Self-bot related stuff.
 """
 import asyncio
+import os
+
+import aiohttp
 import discord
 import random
 
