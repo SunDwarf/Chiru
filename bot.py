@@ -183,6 +183,47 @@ class Chiru(Bot):
 
         return self._redis
 
+    async def get_set(self, server: discord.Server, key: str):
+        """
+        Gets a set from redis.
+        """
+        async with (await self.get_redis()).get() as conn:
+            assert isinstance(conn, aioredis.Redis)
+            built = "cfg:{}:{}".format(server, key)
+            x = await conn.smembers(built)
+
+            m = []
+            # Decode values, if we can.
+            for _ in x:
+                if isinstance(_, bytes):
+                    m.append(_.decode())
+                else:
+                    m.append(_)
+
+            return m
+
+    async def add_to_set(self, server: discord.Server, key: str, item: str):
+        """
+        Add an item to a set.
+        """
+        async with (await self.get_redis()).get() as conn:
+            assert isinstance(conn, aioredis.Redis)
+            built = "cfg:{}:{}".format(server, key)
+            x = await conn.sadd(built, item.encode())
+
+            return x
+
+    async def remove_from_set(self, server: discord.Server, key: str, item: str):
+        """
+        Removes an item from a set.
+        """
+        async with (await self.get_redis()).get() as conn:
+            assert isinstance(conn, aioredis.Redis)
+            built = "cfg:{}:{}".format(server, key)
+            x = await conn.srem(built, item.encode())
+
+            return x
+
     async def get_config(self, server: discord.Server, key: str):
         """
         Get a server config key.
