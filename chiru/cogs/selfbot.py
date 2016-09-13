@@ -25,30 +25,69 @@ class SelfBot(object):
         self._last_mention = 0
 
     async def on_message(self, message: discord.Message):
+        """
+        Don't fucking mention me.
+        """
         if self._dont_mention_me is False:
             return
 
-        if not message.server or message.server.id != "175856762677624832":
+        if not message.server:
             return
 
-        if message.author.id == "174701939580207105":
+        # Check if DontFuckingMentionMe is on on this server.
+        if await self.bot.get_config(message.server, "nomentions") != "y":
             return
 
-        if message.server.me.mention in message.content:
-            if self._last_mention > time.time() - 5:
+        # Check if they're in the whitelist.
+        if message.author.id in await self.bot.get_set(message.server, "mention_whitelist"):
+            return
+
+        if message.server.me in message.mentions:
+            if self._last_mention > time.time() - 2:
                 return
             self._last_mention = time.time()
-            await self.bot.send_message(message.channel, "Why do you feel the need to do this")
+            await self.bot.send_message(message.channel, "{} Heck Off - Please don't mention me here".format(
+                message.author.mention))
 
-    @commands.command()
-    async def dontfuckingmentionme(self):
-        self._dont_mention_me = not self._dont_mention_me
-        if self._dont_mention_me:
-            msg = "DoNTFucKingMEntIonmE"
+    @commands.group(pass_context=True, invoke_without_command=True)
+    async def dontfuckingmentionme(self, ctx: Context):
+        """
+        Please, Don't Fucking Mention Me.
+        """
+        status = await self.bot.get_config(ctx.message.server, "nomentions")
+        if status == "y":
+            await self.bot.say("Mentions are NOT ALLOWED HECK OFF")
         else:
-            msg = "FUckIngMEntIonMe"
+            await self.bot.say("Mentions are allowed.")
 
-        await self.bot.say(msg)
+    @dontfuckingmentionme.command(pass_context=True)
+    async def on(self, ctx: Context):
+        """
+        Turns anti-mention bot on.
+        """
+        await self.bot.set_config(ctx.message.server, "nomentions", "y")
+        await self.bot.say("DonTFUcKIngMentIoNme")
+
+    @dontfuckingmentionme.command(pass_context=True)
+    async def wadd(self, ctx: Context, member: discord.Member):
+        """
+        Adds somebody to the mention whitelist.
+        """
+        await self.bot.add_to_set(ctx.server, "mention_whitelist", member.id)
+        await self.bot.say("{} is :ok:".format(member.name))
+
+    @dontfuckingmentionme.command(pass_context=True)
+    async def wrem(self, ctx: Context, member: discord.Member):
+        await self.bot.remove_from_set(ctx.server, "mention_whitelist", member.id)
+        await self.bot.say("{} can Heck OFF".format(member.name))
+
+    @dontfuckingmentionme.command(pass_context=True)
+    async def off(self, ctx: Context):
+        """
+        Turns anti-mention bot off.
+        """
+        await self.bot.set_config(ctx.message.server, "nomentions", "n")
+        await self.bot.say("MEntIonS Are OK!!!!")
 
     @commands.command(pass_context=True, names=["93591378994397184"])
     async def _93591378994397184(self, ctx):
