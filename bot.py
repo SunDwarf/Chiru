@@ -22,10 +22,10 @@ import traceback
 from discord.ext import commands
 from discord.ext.commands import Bot, CommandNotFound
 from discord.ext.commands.view import StringView
-from kyokai import Kyokai
-from kyokai.asphalt import KyoukaiComponent
-from kyokai.blueprints import Blueprint
-from kyokai.context import HTTPRequestContext
+from kyoukai import Kyoukai
+from kyoukai.asphalt import KyoukaiComponent
+from kyoukai.blueprints import Blueprint
+from kyoukai.context import HTTPRequestContext
 import itsdangerous
 
 from logbook.compat import redirect_logging
@@ -102,13 +102,14 @@ class Chiru(Bot):
         self._redis = None
 
         # Create a new Kyoukai web server.
-        self._webserver = Kyokai("chiru")
+        self._webserver = Kyoukai("chiru")
         self._webserver_started = False
 
         self._webserver.debug = self.config.get("dev", False)
 
         self._webserver.before_request(self.before_request)
-        self._webserver.route("/")(self.root)
+        root = self._webserver.root.wrap_route("/", self.root)
+        self._webserver.root.add_route(root)
 
         try:
             self.http_signer = itsdangerous.Serializer(secret_key=self.config["oauth2"]["http_secret"])

@@ -3,7 +3,7 @@ Event handlers.
 """
 import aioredis
 import discord
-from kyokai import Request
+from kyoukai import Request
 
 from bot import Chiru
 

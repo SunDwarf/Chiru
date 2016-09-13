@@ -5,10 +5,10 @@ import json
 
 import discord
 from itsdangerous import BadSignature
-from kyokai import Request
-from kyokai.blueprints import Blueprint
-from kyokai.context import HTTPRequestContext
-from kyokai.response import redirect
+from kyoukai import Request
+from kyoukai.blueprints import Blueprint
+from kyoukai.context import HTTPRequestContext
+from kyoukai.response import redirect
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 
 from chiru.cogs.oauth2.flow import OAuth2Provider

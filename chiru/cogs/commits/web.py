@@ -3,9 +3,9 @@ Kyoukai web server.
 """
 import hmac
 
-from kyokai import Request
-from kyokai.blueprints import Blueprint
-from kyokai.context import HTTPRequestContext
+from kyoukai import Request
+from kyoukai.blueprints import Blueprint
+from kyoukai.context import HTTPRequestContext
 from logbook import Logger
 
 from bot import Chiru
