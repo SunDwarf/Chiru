@@ -24,6 +24,10 @@ class Fun(object):
     def __init__(self, bot: Chiru):
         self.bot = bot
 
+    @commands.command(hidden=True)
+    async def chiru(self):
+        await self.bot.say("https://www.youtube.com/watch?v=VVaNq9uSJgY")
+
     @commands.command(pass_context=True)
     async def stats(self, ctx: Context):
         """
