@@ -5,11 +5,13 @@ import functools
 import re
 
 import aiohttp
+import asyncio
 import discord
 import google
 from dateutil.parser import parse
 from discord.ext import commands
 from io import BytesIO
+import psutil
 
 from bot import Chiru
 from chiru import util
@@ -36,12 +38,20 @@ class Fun(object):
         # Calculate unique members
         members = sum(1 for x in self.bot.get_all_members())
         uniques = len({x.id for x in self.bot.get_all_members()})
-        await self.bot.say(
+        fmtted = \
             "Currently connected to `{}` servers, with `{}` channels and `{}` users (`{}` unique).{}".format(
                 len(self.bot.servers), len([x for x in self.bot.get_all_channels()]),
                 members, uniques, "\nRunning in self-bot mode." if self.bot.config.get("self_bot") else ""
             )
-        )
+
+        # Gather memory usage.
+        used_memory = psutil.Process().memory_info().rss
+        used_memory = round(used_memory / 1024 / 1024, 2)
+
+        tasks = len(asyncio.Task.all_tasks())
+        fmtted += "\n\nUsing `{}MB` of memory with `{}` tasks in the queue.".format(used_memory, tasks)
+
+        await self.bot.say(fmtted)
 
     @commands.command(pass_context=True)
     async def servers(self, ctx: Context, max_servers: int = 5):

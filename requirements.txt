@@ -34,3 +34,4 @@ typeguard==1.2.2
 uvloop==0.5.1
 websockets==3.1
 youtube-dl==2016.8.10
+psutil
