@@ -353,7 +353,7 @@ class Chiru(Bot):
         if self._skip_check(message.author, self.user):
             return
 
-        prefix = self._get_prefix(message)
+        prefix = await self._get_prefix(message)
         invoked_prefix = prefix
 
         if not isinstance(prefix, (tuple, list)):
