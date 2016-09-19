@@ -95,8 +95,9 @@ class Commits(object):
             port = self.bot._webserver.component.port
             addr = "http://{}:{}/webhook".format(ip, port)
 
-        fmt = "To complete commit linking, add a new webhook to your repo.\n The webhook should point to `{}`, " \
-              "and must have the secret of `{}`.".format(addr, secret)
+        fmt = "To complete commit linking for {}, add a new webhook to your repo.\n " \
+              "The webhook should point to `{}`, " \
+              "and must have the secret of `{}`.".format(repo, addr, secret)
 
         await self.bot.send_message(ctx.author, fmt)
 
@@ -126,6 +127,7 @@ class Commits(object):
         count = await self.bot.db.cleanup_links()
 
         await self.bot.say(":heavy_check_mark: Cleaned up **{}** stale commit links.".format(count))
+
 
 def setup(bot: Chiru):
     cog = Commits(bot)
