@@ -115,6 +115,17 @@ class Commits(object):
         else:
             await self.bot.say(":heavy_check_mark: Removed link.")
 
+    @link.command(pass_context=True)
+    @commands.check(checks.is_owner)
+    async def cleanup(self, ctx: Context):
+        """
+        Cleanup stale links.
+
+        You must be the owner to do this.
+        """
+        count = await self.bot.db.cleanup_links()
+
+        await self.bot.say(":heavy_check_mark: Cleaned up **{}** stale commit links.".format(count))
 
 def setup(bot: Chiru):
     cog = Commits(bot)

@@ -39,7 +39,7 @@ class ChiruDatabase:
         self.engine = sa.create_engine(self.db_uri)
         self._session_maker = sessionmaker(bind=self.engine)
 
-        self._session = self._session_maker()
+        self._session = self._session_maker()  # type: Session
 
         self._ready = asyncio.Event()
 
@@ -128,6 +128,27 @@ class ChiruDatabase:
         return repo.secret
 
     @threadpool
+    def cleanup_links(self):
+        """
+        Cleanup stale links.
+        """
+        repos = self.session.query(CommitLink).all()
+
+        removed = []
+        for repo in repos:
+            # Less than 1 channel, so it's not linked anywhere.
+            if len(repo.channels) < 1:
+                self.session.delete(repo)
+                removed.append(repo)
+
+        for x in removed:
+            self.logger.info("Removed repo {} as it has no commit links".format(x.repo_name))
+
+        self.session.commit()
+
+        return len(removed)
+
+    @threadpool
     def remove_link(self, channel: discord.Channel, repo: str):
         """
         Remove a channel link.
@@ -137,14 +158,26 @@ class ChiruDatabase:
             return False
 
         channel = self.session.query(Channel).filter(Channel.id == int(channel.id)).first()
+        print(channel, repo.channels, channel in repo.channels)
+
+        if channel in repo.channels:
+            repo.channels.remove(channel)
+        else:
+            return False
+
+        # Check if the repo has no channels.
+        if len(repo.channels) == 0:
+            self.session.delete(repo)
+        else:
+            self.session.merge(repo)
 
         try:
-            repo.channels.remove(channel)
             self.session.commit()
         except Exception:
-            return False
-        else:
-            return True
+            self.logger.error("Failed to commit!")
+            raise
+
+        return True
 
     def __repr__(self):
         return "<ChiruDatabase connected to `{}`>".format(self.db_uri)
