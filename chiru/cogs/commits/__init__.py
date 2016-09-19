@@ -75,7 +75,8 @@ class Commits(object):
 
         # Give instructions on how to link the repo.
         await self.bot.say(
-            "Linked `{}` to `{}`. PMing you with webhook creation information.".format(repo, ctx.channel.name)
+            ":heavy_check_mark: Linked `{}` to `{}`. "
+            "PMing you with webhook creation information.".format(repo, ctx.channel.name)
         )
         secret = link.secret
 
