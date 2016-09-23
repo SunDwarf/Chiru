@@ -120,7 +120,7 @@ class Owner:
         """
         Segfault the bot in order to kill it.
         """
-
+        await self.bot.say("☠")
         import ctypes
         ctypes.string_at(1)
 
@@ -144,23 +144,6 @@ class Owner:
 
         else:
             await self.bot.say("`{}`".format(result))
-
-    @commands.command(pass_context=True)
-    @commands.check(is_owner)
-    async def type(self, ctx: Context, duration: int):
-        """
-        Type for a long time.
-        """
-        try:
-            await self.bot.delete_message(ctx.message)
-        except discord.Forbidden:
-            pass
-
-        channel = ctx.channel
-        to_type = (duration // 5)
-        for x in range(to_type):
-            await self.bot.send_typing(channel)
-            await asyncio.sleep(5)
 
 
 def setup(bot: Chiru):
