@@ -14,7 +14,24 @@ async def load_channels(bot: Chiru, repo: str):
     """
     _channel_db = await bot.db.get_channels_for_repo(repo)
 
-    channels = [bot.get_channel(str(channel.id)) for channel in _channel_db]
+    channels = []
+
+    for channel in _channel_db:
+        # Check if it still exists and if we have Send Messages permission
+        id = str(channel.id)
+        channel = bot.get_channel(id)
+
+        if channel is None:
+            continue
+
+        # Check our override
+        if not channel.permissions_for(channel.server.me).send_messages:
+            # Don't bother with trying to add the channel.
+            continue
+
+        # Add the channel to the channels.
+        channels.append(channel)
+
     return channels
 
 
