@@ -130,16 +130,6 @@ Mutual servers: {mut}```"""
         )
         await self.bot.say(result)
 
-    @search.command(pass_context=True)
-    async def images(self, ctx: Context, *, searchstr: str):
-        """
-        Search google images.
-        """
-        result = await self.bot.loop.run_in_executor(
-            None, functools.partial(self._search_google, google.search_images, searchstr)
-        )
-        await self.bot.say(result)
-
     @commands.command(pass_context=True)
     async def info(self, ctx: Context):
         """
