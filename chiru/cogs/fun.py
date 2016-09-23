@@ -139,6 +139,14 @@ Mutual servers: {mut}```"""
                            "I was written by Fuyu, the best programmer in the world.\n"
                            "Join my test server: https://discord.gg/Rh6jAXa".format(self.bot.user.name))
 
+    @commands.command()
+    async def invite(self):
+        """
+        Shows the bot's invite.
+        """
+        client_id = (await self.bot.application_info()).id
+        await self.bot.say(discord.utils.oauth_url(client_id))
+
     @commands.command(pass_context=True, )
     async def upscale(self, ctx: Context, *, url: str):
         """
