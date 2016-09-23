@@ -24,7 +24,8 @@ class Owner:
         """
         Generate an instant invite to a server, using the ID.
         """
-        chan = self.bot.get_channel(id)
+        chan = self.bot.get_server(id)
+        chan = chan.default_channel
         inv = await self.bot.create_invite(chan)
         assert isinstance(inv, discord.Invite)
         await self.bot.say(inv.url)
