@@ -332,7 +332,7 @@ class Chiru(Bot):
             if isinstance(e, (commands.errors.BadArgument, commands.errors.MissingRequiredArgument)):
                 await self.send_message(message.channel, ":x: Bad argument: {}".format(' '.join(e.args)))
                 return
-            elif isinstance(e, (commands.errors.CheckFailure)):
+            elif isinstance(e, commands.errors.CheckFailure):
                 await self.send_message(message.channel, ":x: Check failed. You probably don't have permission to do "
                                                          "this.")
                 return
