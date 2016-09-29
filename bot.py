@@ -120,6 +120,9 @@ class Chiru(Bot):
 
         self.start_time = time.time()
 
+        self.app_id = ""
+        self.owner_id = ""
+
         # Create the rotation background task.
         self.loop.create_task(self._rotate_game_text())
 
@@ -256,10 +259,13 @@ class Chiru(Bot):
     async def on_ready(self):
         self.logger.info("Loaded Chiru, logged in as `{}`.".format(self.user.name))
         try:
-            id = (await self.application_info()).id
-            self.logger.info("Invite link: {}".format(discord.utils.oauth_url(id)))
+            app_info = await self.application_info()
+            self.app_id = app_info.id
+            self.owner_id = app_info.owner.id
+
+            self.logger.info("Invite link: {}".format(discord.utils.oauth_url(self.app_id)))
         except discord.Forbidden:
-            pass
+            self.owner_id = self.user.id
         redis = await self.get_redis()
         if not redis:
             return
