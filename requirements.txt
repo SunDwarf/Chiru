@@ -1,4 +1,4 @@
-aiohttp==0.21.6
+aiohttp==1.0.2
 aioredis==0.2.8
 alembic==0.8.7
 asphalt==2.0.0
@@ -7,7 +7,7 @@ beautifulsoup4==4.5.1
 cffi==1.7.0
 chardet==2.3.0
 click==6.6
-discord.py==0.11.0
+discord.py==0.13.0
 google==1.9.3
 hiredis==0.2.0
 http-parser==0.8.3
@@ -32,6 +32,6 @@ six==1.10.0
 SQLAlchemy==1.0.14
 typeguard==1.2.2
 uvloop==0.5.1
-websockets==3.1
+websockets==3.1websockets==3.2
 youtube-dl==2016.8.10
 psutil

@@ -133,7 +133,7 @@ class Chiru(Bot):
         await self.wait_until_ready()
         texts = self.config.get("game_texts", [])
         while True:
-            await self.change_status(game=discord.Game(name=random.choice(texts)))
+            await self.change_presence(game=discord.Game(name=random.choice(texts)))
             await asyncio.sleep(15)
 
     @property
