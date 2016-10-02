@@ -32,6 +32,6 @@ six==1.10.0
 SQLAlchemy==1.0.14
 typeguard==1.2.2
 uvloop==0.5.1
-websockets==3.1websockets==3.2
+websockets==3.2
 youtube-dl==2016.8.10
 psutil
