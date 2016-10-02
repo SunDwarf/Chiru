@@ -187,6 +187,8 @@ async def fork(bot: Chiru, r: Request):
         await bot.send_message(channel, fmt)
 
 async def status(bot: Chiru, r: Request):
+    # Disabled, due to webhooks.
+    return
     # Build statuses
     repo = r.form["repository"]["full_name"]
 
