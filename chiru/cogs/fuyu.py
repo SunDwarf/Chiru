@@ -27,8 +27,6 @@ class Fuyu:
     Utilities for my server.
     """
 
-    ABUSE_ROLE_ID = "217264202174169088"
-
     def __init__(self, bot: Chiru):
         self.bot = bot
 
@@ -39,24 +37,6 @@ class Fuyu:
         if member.bot:
             role = discord.utils.get(member.server.roles, name="Bots")
             await self.bot.add_roles(member, role)
-
-    @commands.command(pass_context=True)
-    @commands.check(checks.is_owner)
-    async def abuselottery(self, ctx: Context, *roles: discord.Role):
-        """
-        Defines who gets to win the daily abuse lottery.
-        """
-        members = []
-        for member in ctx.server.members:
-            if any(r in member.roles for r in roles):
-                members.append(member)
-
-        await self.bot.say("Picking a new abuser...")
-        chosen = random.choice(members)
-        role = discord.utils.get(ctx.server.roles, id=self.ABUSE_ROLE_ID)
-
-        await self.bot.add_roles(chosen, role)
-        await self.bot.say("{} has got the abuse role! Hooray!".format(chosen.mention))
 
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
@@ -89,7 +69,8 @@ class Fuyu:
             status = response.status
             js = await response.json()
             if status != 200:
-                await self.bot.say("\N{NO ENTRY SIGN} Failed to add bot to server! Error `{}`".format(status))
+                await self.bot.say("\N{NO ENTRY SIGN} Failed to add bot to server! Error `{}`".format(js))
+                print(js)
             else:
                 await self.bot.say("\N{THUMBS UP SIGN} Added new bot.")
 
