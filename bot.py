@@ -31,7 +31,6 @@ import itsdangerous
 from logbook.compat import redirect_logging
 from logbook import StreamHandler
 
-from chiru import db
 from override import Context
 
 # Define logging stuff.
@@ -115,8 +114,6 @@ class Chiru(Bot):
             self.http_signer = itsdangerous.Serializer(secret_key=self.config["oauth2"]["http_secret"])
         except KeyError:
             self.http_signer = None
-
-        self.db = db.ChiruDatabase(self.config.get("db_url"))
 
         self.start_time = time.time()
 
