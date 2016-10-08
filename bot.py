@@ -110,11 +110,6 @@ class Chiru(Bot):
         root = self._webserver.root.wrap_route("/", self.root)
         self._webserver.root.add_route(root)
 
-        try:
-            self.http_signer = itsdangerous.Serializer(secret_key=self.config["oauth2"]["http_secret"])
-        except KeyError:
-            self.http_signer = None
-
         self.start_time = time.time()
 
         self.app_id = ""
