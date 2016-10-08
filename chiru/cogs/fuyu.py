@@ -38,6 +38,12 @@ class Fuyu:
             role = discord.utils.get(member.server.roles, name="Bots")
             await self.bot.add_roles(member, role)
 
+        # Auto-nickname them.
+        dt = datetime.datetime.now()
+        if dt.month == 10:
+            nickname = "spooky {}".format(member.name)
+            await self.bot.change_nickname(member, nickname)
+
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
     async def addbot(self, ctx: Context, client_id: int):
