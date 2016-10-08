@@ -76,9 +76,11 @@ class Fuyu:
             js = await response.json()
             if status != 200:
                 await self.bot.say("\N{NO ENTRY SIGN} Failed to add bot to server! Error `{}`".format(js))
-                print(js)
             else:
-                await self.bot.say("\N{THUMBS UP SIGN} Added new bot.")
+                if 'location' in js and 'invalid_request' in js['location']:
+                    await self.bot.say("\N{NO ENTRY SIGN} Invalid client ID.")
+                else:
+                    await self.bot.say("\N{THUMBS UP SIGN} Added new bot.")
 
 
 def setup(bot: Chiru):
