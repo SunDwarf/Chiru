@@ -3,6 +3,7 @@ Fun commands.
 """
 import functools
 import re
+import operator
 
 import aiohttp
 import asyncio
@@ -194,16 +195,23 @@ Mutual servers: {mut}```"""
         await self.bot.say(final_c)
 
     @commands.command(pass_context=True)
-    async def discrims(self, ctx: Context):
+    async def discrims(self, ctx: Context, count: int = 5):
         """
         List how many discrims out of 10000 I can see.
         """
-        can_see = {int(x.discriminator) for x in self.bot.get_all_members()}
         base = 9999
         num_cant_see = 0
+        amount = {i: 0 for i in range(1, base + 1)}
+        already_accounted_for = set()
+        can_see = set()
+
+        for x in self.bot.get_all_members():
+            can_see.add(int(x.discriminator))
+            if x.id not in already_accounted_for:
+                already_accounted_for.add(x.id)
+                amount[int(x.discriminator)] += 1
 
         missing = []
-
         for x in range(1, base + 1):
             if x not in can_see:
                 num_cant_see += 1
@@ -215,6 +223,13 @@ Mutual servers: {mut}```"""
         ))
         if missing:
             await self.bot.say("Almost at 10000! Missing: `{}`".format(", ".join(map(str, missing))))
+
+        amount = sorted(amount.items(), key=operator.itemgetter(1))
+        amount.reverse()
+        fmt = "Most popular discriminators:\n"
+        for a in amount[:min(count, 20)]:
+            fmt += "``#{}`` with ``{}`` users\n".format(str(a[0]).rjust(4, "0"), str(a[1]))
+        await self.bot.say(fmt)
 
     @commands.command(pass_context=True)
     async def serverinfo(self, ctx: Context):
