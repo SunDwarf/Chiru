@@ -43,6 +43,9 @@ class Fuyu:
         if dt.month == 10:
             nickname = "spooky {}".format(member.name)
             await self.bot.change_nickname(member, nickname)
+        elif dt.month in [11, 12]:
+            nickname = "festive {}".format(member.name)
+            await self.bot.change_nickname(member, nickname)
 
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
