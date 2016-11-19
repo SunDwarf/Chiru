@@ -45,7 +45,7 @@ class Fuyu:
             await self.bot.change_nickname(member, nickname)
 
     async def on_message(self, message: discord.Message):
-        if isinstance(message.author, discord.User):
+        if not isinstance(message.author, discord.Member):
             return
 
         if message.author.server.id != "198101180180594688":
