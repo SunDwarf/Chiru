@@ -7,6 +7,7 @@ import random
 import datetime
 
 import aiohttp
+import asyncio
 import discord
 import time
 from discord.ext import commands
@@ -34,10 +35,6 @@ class Fuyu:
         if member.server.id != "198101180180594688":
             return
 
-        if member.bot:
-            role = discord.utils.get(member.server.roles, name="Bots")
-            await self.bot.add_roles(member, role)
-
         # Auto-nickname them.
         dt = datetime.datetime.now()
         if dt.month == 10:
@@ -46,6 +43,37 @@ class Fuyu:
         elif dt.month in [11, 12]:
             nickname = "festive {}".format(member.name)
             await self.bot.change_nickname(member, nickname)
+
+    async def on_message(self, message: discord.Message):
+        if message.author.server.id != "198101180180594688":
+            return
+
+        if message.author.id == message.server.me.id:
+            return
+
+        if "triggered" in message.content:
+            await self.bot.send_message(message.channel, "haha triggered xd")
+
+    @commands.command(pass_context=True)
+    @commands.check(fuyu_check)
+    async def massnick(self, ctx: Context, *, prefix: str):
+        """
+        Mass nicknames a server with the specified prefix.
+        """
+        coros = []
+
+        for member in ctx.server.members:
+            coros.append(self.bot.change_nickname(member, "{} {}".format(prefix, member.name)))
+
+        fut = asyncio.gather(*coros, return_exceptions=True)
+
+        while not fut.done():
+            await self.bot.type()
+            await asyncio.sleep(5)
+
+        count = sum(1 for i in fut.result() if i)
+
+        await self.bot.say("Changed `{}` nicks.".format(count))
 
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
