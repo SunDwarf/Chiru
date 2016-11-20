@@ -59,6 +59,7 @@ class Fuyu:
 
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
+    @commands.has_permissions(manage_server=True)
     async def massnick(self, ctx: Context, *, prefix: str):
         """
         Mass nicknames a server with the specified prefix.
