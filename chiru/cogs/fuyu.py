@@ -20,7 +20,7 @@ AUTHORIZATION_URL = "https://discordapp.com/api/v6/oauth2/authorize"
 
 
 def fuyu_check(ctx: Context):
-    return ctx.server.id == "198101180180594688"
+    return ctx.server.id in ["198101180180594688", "169602212769562626"]
 
 
 class Fuyu:
