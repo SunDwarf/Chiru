@@ -35,15 +35,6 @@ class Fuyu:
         if member.server.id != "198101180180594688":
             return
 
-        # Auto-nickname them.
-        dt = datetime.datetime.now()
-        if dt.month == 10:
-            nickname = "spooky {}".format(member.name)
-            await self.bot.change_nickname(member, nickname)
-        elif dt.month in [11, 12]:
-            nickname = "festive {}".format(member.name)
-            await self.bot.change_nickname(member, nickname)
-
     async def on_message(self, message: discord.Message):
         if not isinstance(message.author, discord.Member):
             return
@@ -56,28 +47,6 @@ class Fuyu:
 
         if "triggered" in message.content:
             await self.bot.send_message(message.channel, "haha triggered xd")
-
-    @commands.command(pass_context=True)
-    @commands.check(fuyu_check)
-    @commands.has_permissions(manage_server=True)
-    async def massnick(self, ctx: Context, prefix: str, suffix: str=""):
-        """
-        Mass nicknames a server with the specified prefix.
-        """
-        coros = []
-
-        for member in ctx.server.members:
-            coros.append(self.bot.change_nickname(member, "{}{}{}".format(prefix, member.name, suffix)))
-
-        fut = asyncio.gather(*coros, return_exceptions=True)
-
-        while not fut.done():
-            await self.bot.type()
-            await asyncio.sleep(5)
-
-        count = sum(1 for i in fut.result() if not isinstance(i, Exception))
-
-        await self.bot.say("Changed `{}` nicks.".format(count))
 
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
@@ -97,7 +66,7 @@ class Fuyu:
         headers = {
             "Authorization": self.bot.config.get("bot_add_token"),
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36",
+                          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2946.0 Safari/537.36",
             "Content-Type": "application/json"
         }
         async with aiohttp.ClientSession() as sess:
