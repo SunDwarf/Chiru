@@ -20,7 +20,7 @@ AUTHORIZATION_URL = "https://discordapp.com/api/v6/oauth2/authorize"
 
 
 def fuyu_check(ctx: Context):
-    return ctx.server.id in ["198101180180594688", "169602212769562626"]
+    return ctx.server.id in ["198101180180594688"]
 
 
 class Fuyu:
@@ -47,6 +47,15 @@ class Fuyu:
 
         if "triggered" in message.content:
             await self.bot.send_message(message.channel, "haha triggered xd")
+
+    @commands.command(pass_context=True)
+    @commands.check(fuyu_check)
+    async def servername(self, ctx: Context, *, name: str):
+        """
+        Changes the name of my server.
+        """
+        await self.bot.edit_server(ctx.message.server, name=name)
+        await self.bot.say(":heavy_check_mark: Changed server name.")
 
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
