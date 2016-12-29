@@ -1,19 +1,15 @@
 """
 Cog used for my server.
 """
+import os
 import json
-import random
-
-import datetime
 
 import aiohttp
-import asyncio
 import discord
-import time
+import itertools
 from discord.ext import commands
 
 from bot import Chiru
-from chiru import checks
 from override import Context
 
 AUTHORIZATION_URL = "https://discordapp.com/api/v6/oauth2/authorize"
@@ -31,6 +27,10 @@ class Fuyu:
     def __init__(self, bot: Chiru):
         self.bot = bot
 
+        sd = os.scandir("./avatars")
+        files = [f.path for f in sd]
+        self.files = iter(itertools.cycle(files))
+
     async def on_member_join(self, member: discord.Member):
         if member.server.id != "198101180180594688":
             return
@@ -47,6 +47,18 @@ class Fuyu:
 
         if "triggered" in message.content:
             await self.bot.send_message(message.channel, "haha triggered xd")
+
+    @commands.command(pass_context=True)
+    @commands.check(fuyu_check)
+    async def rotate(self, ctx: Context):
+        """
+        Rotates the server avatar.
+        """
+        next_file = next(self.files)
+        with open(next_file, 'rb') as f:
+            await self.bot.edit_server(ctx.server, icon=f.read())
+
+        await self.bot.say(":recycle:")
 
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
@@ -75,7 +87,7 @@ class Fuyu:
         headers = {
             "Authorization": self.bot.config.get("bot_add_token"),
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2946.0 Safari/537.36",
+                          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2950.4 Safari/537.36",
             "Content-Type": "application/json"
         }
         async with aiohttp.ClientSession() as sess:
