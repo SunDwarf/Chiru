@@ -10,6 +10,7 @@ import itertools
 from discord.ext import commands
 
 from bot import Chiru
+from chiru.checks import is_owner
 from override import Context
 
 AUTHORIZATION_URL = "https://discordapp.com/api/v6/oauth2/authorize"
@@ -47,6 +48,16 @@ class Fuyu:
 
         if "triggered" in message.content:
             await self.bot.send_message(message.channel, "haha triggered xd")
+
+    @commands.command(pass_context=True)
+    @commands.check(fuyu_check)
+    @commands.check(is_owner)
+    async def admin_notify(self, ctx: Context, *, content: str):
+        await self.bot.delete_message(ctx.message)
+        role = next(filter(lambda r: r.id == "264425112789319680", ctx.server.roles))
+        await self.bot.edit_role(role.server, role, mentionable=True)
+        await self.bot.say("{}: {}".format(role.mention, content))
+        await self.bot.edit_role(role.server, role, mentionable=False)
 
     @commands.command(pass_context=True)
     @commands.check(fuyu_check)
